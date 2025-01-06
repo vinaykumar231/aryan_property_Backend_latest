@@ -14,6 +14,7 @@ import bcrypt
 from api.schemas import ChangePassword, LoginInput, UpdateUser, UserType
 from auth.auth_handler import signJWT
 import pytz
+# from ..models.logs import Logs
 
 
 
@@ -28,6 +29,11 @@ class AriyanspropertiesUser(Base):
     phone_no = Column(BIGINT)
     created_on = Column(DateTime, default=func.now())
     updated_on = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp())
+
+     # Relationships
+    logs = relationship("Logs", back_populates="user")
+    property_details = relationship("PropertyDetails", back_populates="user")
+    logs = relationship("Logs", back_populates="user")
 
 
     # #######################################################################################################################
