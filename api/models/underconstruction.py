@@ -8,5 +8,5 @@ class Underconstruction(Base):
     __tablename__ = "underconstruction"
     uc_id = Column(Integer, primary_key=True, index=True)
     year = Column(Integer)
-    des_id = Column(String(50), ForeignKey("description.des_id"))
+    des_id = Column(String(50), ForeignKey("descriptions.des_id"))
     edit_date = Column(DateTime, default=datetime.utcnow)

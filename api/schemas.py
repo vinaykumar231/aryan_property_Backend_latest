@@ -45,35 +45,83 @@ class UpdateUser(BaseModel):
     user_type: Optional[str] = None
     current_password: Optional[str] = None
 
-################################### add material name ###########################
+##########################################   Property   ####################################################
 
-class MaterialCreateSchema(BaseModel):
-    name: str
-    quantity: int
-    description: Optional[str] = None
+class PropertyCreate(BaseModel):
+    building: Optional[str] = None
+    address2: Optional[str] = None
+    city: Optional[str] = None
+    area: Optional[str] = None
+    pin: Optional[str] = None
+    company: Optional[str] = None
+    status_code: Optional[str] = None  
+    property_type: Optional[str] = None
+    c_status: Optional[str] = None  
+    lease_code: Optional[str] = None
+    des_code: Optional[str] = None
+    usp: Optional[str] = None  
+
+class PropertyUpdate(BaseModel):
+    building: Optional[str] = None
+    address2: Optional[str] = None
+    city: Optional[str] = None
+    area: Optional[str] = None
+    pin: Optional[str] = None
+    company: Optional[str] = None
+    status_code: Optional[str] = None
+    property_type: Optional[str] = None
+    c_status: Optional[str] = None
+    lease_code: Optional[str] = None
+    des_code: Optional[str] = None
+    usp: Optional[str] = None
+    
+    class Config:
+        orm_mode = True
+
+################################### Property Details  ###########################
+
+class PropertyDetailsBase(BaseModel):
+    property_code: str
+    rate_buy: float
+    rate_lease: float
+    floor: int
+    unit_no: str
+    wing: str
+    car_parking: str
+    remarks: str
+
+class PropertyDetailsCreate(PropertyDetailsBase):
+    pass
+
+class PropertyDetailsResponse(PropertyDetailsBase):
+    id: int
+    edit_date: datetime
+
+class PropertyDetailsUpdate(BaseModel):
+    property_code: Optional[str] = None
+    rate_buy: Optional[float] = None
+    rate_lease: Optional[float] = None
+    floor: Optional[int] = None
+    unit_no: Optional[str] = None
+    wing: Optional[str] = None
+    car_parking: Optional[str] = None
+    remarks: Optional[str] = None
 
     class Config:
         orm_mode = True
-    
-################################### add material name ###########################
 
-class SiteCreateSchema(BaseModel):
-    site_name: str
-    site_address: str
-    
+#########################################################################################################
 
-    class Config:
-        orm_mode = True
+class PropertyTypeCreate(BaseModel):
+    category: str
 
-################################## add material name ###########################
+class PropertyTypeUpdate(BaseModel):
+    category: str
 
-class vendorCreateSchema(BaseModel):
-    name: str
-    contact: int
-    email: str
+class PropertyTypeResponse(BaseModel):
+    type_id: str
+    category: str
     
 
     class Config:
         orm_mode = True
-
-
