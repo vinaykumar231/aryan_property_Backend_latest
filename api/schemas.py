@@ -110,7 +110,7 @@ class PropertyDetailsUpdate(BaseModel):
     class Config:
         orm_mode = True
 
-#########################################################################################################
+################################################  Property Type  #########################################################
 
 class PropertyTypeCreate(BaseModel):
     category: str
@@ -122,6 +122,62 @@ class PropertyTypeResponse(BaseModel):
     type_id: str
     category: str
     
+
+    class Config:
+        orm_mode = True
+
+###################################################  Lease Sale  ###########################################################
+
+from pydantic import BaseModel
+
+class LeaseSaleCreate(BaseModel):
+    lease_type: str
+
+class LeaseSaleUpdate(BaseModel):
+    lease_type: str
+
+class LeaseSaleResponse(BaseModel):
+    lease_id: str
+    lease_type: str
+    edit_date: str
+
+    class Config:
+        orm_mode = True
+
+##############################################  Descriptions  ########################################################################
+
+class DescriptionCreate(BaseModel):
+    description: str
+    property_id: str
+
+class DescriptionUpdate(BaseModel):
+    description: str
+
+class DescriptionResponse(BaseModel):
+    des_id: str
+    description: str
+    property_id: str
+    edit_date: str
+
+    class Config:
+        orm_mode = True
+
+############################################################   Property Contact ##########################################################
+
+class PropertyContactBase(BaseModel):
+    property_id: str
+    contact_person: str
+    email: EmailStr
+    mobile: str
+
+class PropertyContactCreate(PropertyContactBase):
+    pass
+
+class PropertyContactUpdate(BaseModel):
+    property_id: Optional[str]
+    contact_person: Optional[str]
+    email: Optional[EmailStr]
+    mobile: Optional[str]
 
     class Config:
         orm_mode = True
