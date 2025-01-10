@@ -86,7 +86,7 @@ def update_lease_sale(
         db_lease_sale.edit_date = ist_now
         db.commit()
         db.refresh(db_lease_sale)
-        return db_lease_sale
+        return {"message": "lease sale updated successfully.","lease_sale":db_lease_sale}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:
@@ -108,7 +108,7 @@ def delete_lease_sale(
 
         db.delete(db_lease_sale)
         db.commit()
-        return db_lease_sale
+        return {"message": "lease sale deleted successfully.","lease_sale":db_lease_sale}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

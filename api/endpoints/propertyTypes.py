@@ -87,7 +87,7 @@ def update_property_type(
         db_property_type.edit_date = ist_now
         db.commit()
         db.refresh(db_property_type)
-        return db_property_type
+        return {"message": "property type updated successfully.","property_type":db_property_type}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:
@@ -110,7 +110,7 @@ def delete_property_type(
 
         db.delete(db_property_type)
         db.commit()
-        return db_property_type
+        return {"message": "property type deleted successfully.","property_type":db_property_type}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

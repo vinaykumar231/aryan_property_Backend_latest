@@ -4,7 +4,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
-from api.endpoints import (user_rouetr, propertyDetails_router, property_router, propertyTypes_router, leaseSale_router, description_router, propertyContacts_router)
+from api.endpoints import (user_rouetr, propertyDetails_router, property_router, propertyTypes_router, leaseSale_router, description_router, propertyContacts_router,city_router,
+                           sublocation_router)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -37,6 +38,8 @@ app.include_router(propertyTypes_router, prefix="/api", tags=["Property Types Ro
 app.include_router(leaseSale_router, prefix="/api", tags=["Lease Sale Routes"])
 app.include_router(description_router, prefix="/api", tags=["Description Routes"])
 app.include_router(propertyContacts_router, prefix="/api", tags=["Property Contacts Routes"])
+app.include_router(city_router, prefix="/api", tags=["City Routes"])
+app.include_router(sublocation_router, prefix="/api", tags=["Sublocation Routes"])
 
 
 if __name__ == "__main__":

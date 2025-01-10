@@ -181,3 +181,41 @@ class PropertyContactUpdate(BaseModel):
 
     class Config:
         orm_mode = True
+
+###########################################  city #############################################################
+
+class CityBase(BaseModel):
+    city_name: str
+
+class CityCreate(CityBase):
+    pass
+
+class CityUpdate(CityBase):
+    pass
+
+class CityResponse(CityBase):
+    city_id: int
+    edit_date: datetime
+
+    class Config:
+        orm_mode = True
+
+########################################## sublocation ###########################################################
+
+class SublocationCreate(BaseModel):
+    city_id: int 
+    sublocation_name: str  
+
+class SublocationUpdate(BaseModel):
+        sublocation_name: Optional[str]
+
+class SublocationResponse(BaseModel):
+        sublocation_id: int 
+        city_id: int 
+        sublocation_name: str  
+        edit_date: datetime  
+
+        class Config:
+            orm_mode = True
+
+   

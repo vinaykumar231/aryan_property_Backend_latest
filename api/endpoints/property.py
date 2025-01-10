@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
+from api.models.description import Description
+from api.models.leaseSale import LeaseSale
+from api.models.propertyTypes import PropertyTypes
 from api.models.user import AriyanspropertiesUser
 from auth.auth_bearer import get_current_user
 from ..models.property import Property
@@ -10,7 +13,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter()
 
-@router.post("/property/", response_model=None)
+@router.post("/property/", response_model=None)     #dependencies=[Depends(JWTBearer()), Depends(get_admin)]
 def create_property(
     property: PropertyCreate,
     db: Session = Depends(get_db),
@@ -21,6 +24,18 @@ def create_property(
         existing_property = db.query(Property).filter(Property.property_code == property_code).first()
         if existing_property:
             raise HTTPException(status_code=400, detail="Property code already exists.")
+        
+        property_type_db = db.query(Property).filter(PropertyTypes.type_id == property.property_type).first()
+        if not property_type_db:
+                raise HTTPException(status_code=400, detail="Property type does not exist ")
+        
+        property_lease_code_exists = db.query(LeaseSale).filter(LeaseSale.lease_id == property.lease_code).first()
+        if not property_lease_code_exists:
+                raise HTTPException(status_code=400, detail="Lease code does not exist")
+        
+        property_des_code_exists = db.query(Description).filter(Description.des_id == property.des_code).first()
+        if not property_des_code_exists:
+                raise HTTPException(status_code=400, detail="Description code does not exist.")
 
         db_property = Property(
             property_code=property_code,
@@ -46,10 +61,12 @@ def create_property(
         return db_property
     except HTTPException as http_exc:
         raise http_exc
-
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=404, detail="A database error occurred while creating property data.")
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Error occurred while creating property: {str(e)}")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while creating property data.") #f"An unexpected error occurred: {str(e)}"
 
 @router.get("/property/{property_code}", response_model=None)
 def get_property(
@@ -141,7 +158,7 @@ def update_property(
         db.commit()
         db.refresh(db_property)
 
-        return db_property
+        return {"message": "property data updated successfully.","property":db_property}
 
     except HTTPException as http_exc:
         raise http_exc
@@ -165,7 +182,7 @@ def delete_property(
 
         db.delete(property)
         db.commit()
-        return {"message": "Property deleted successfully."}
+        return {"message": "Property deleted successfully.", "property":property}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

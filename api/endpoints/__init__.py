@@ -5,3 +5,5 @@ from .propertyTypes import router as propertyTypes_router
 from .leaseSale import router as leaseSale_router
 from .description import router as description_router
 from .propertyContacts import router as propertyContacts_router
+from .city import router as city_router
+from .sublocation import router as sublocation_router

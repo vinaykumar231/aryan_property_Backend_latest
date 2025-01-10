@@ -89,7 +89,7 @@ def update_description(
         db_description.edit_date = datetime.utcnow()
         db.commit()
         db.refresh(db_description)
-        return db_description
+        return {"message": "Property description updated successfully.","description":db_description}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:
@@ -111,7 +111,7 @@ def delete_description(
         
         db.delete(db_description)
         db.commit()
-        return db_description
+        return {"message": "Property description deleted successfully.","description":db_description}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:
