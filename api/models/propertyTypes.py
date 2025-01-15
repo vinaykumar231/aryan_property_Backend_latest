@@ -6,6 +6,6 @@ from datetime import datetime
 # PropertyTypes Table:  1 ,Commercial,'2025-01-06 10:30:00'
 class PropertyTypes(Base):
     __tablename__ = "property_types"
-    type_id = Column(String(50), primary_key=True, index=True)
+    type_id = Column(String(50), primary_key=True, index=True, autoincrement=True)
     category = Column(String(100))  #  'Commercial',Industrial' 'Retail','Office Space','Hospitality',
     edit_date = Column(DateTime, default=datetime.utcnow)

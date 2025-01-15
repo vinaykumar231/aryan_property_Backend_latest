@@ -83,12 +83,10 @@ def update_property_contact(
     db: Session = Depends(get_db)
 ):
     try:
-        # Fetch the property contact by contact_id
         db_property_contact = db.query(PropertyContacts).filter(PropertyContacts.contact_id == contact_id).first()
         if not db_property_contact:
             raise HTTPException(status_code=404, detail="Property Contact not found")
 
-        # Update the fields only if new values are provided
         if property_contact_update.property_id is not None:
             property_exists = db.query(Property).filter(Property.property_code == property_contact_update.property_id).first()
             if not property_exists:
@@ -102,7 +100,6 @@ def update_property_contact(
         if property_contact_update.mobile is not None:
             db_property_contact.mobile = property_contact_update.mobile
 
-        # Commit the changes to the database
         db.commit()
         db.refresh(db_property_contact)
 

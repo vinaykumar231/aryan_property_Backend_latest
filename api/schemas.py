@@ -218,4 +218,107 @@ class SublocationResponse(BaseModel):
         class Config:
             orm_mode = True
 
+############################################ area ###################################################################
+
+class AreaCreate(BaseModel):
+    sublocation_id: int
+    area_name: str
+
+class AreaUpdate(BaseModel):
+    area_name: str
+
+class AreaResponse(BaseModel):
+    area_id: int
+    sublocation_id: int
+    area_name: str
+    edit_date: datetime
+
+    class Config:
+        orm_mode = True
+
+####################################################### company ################################################
+
+class CompanyCreate(BaseModel):
+    company_name: str
+    contact_person: str
+    address: str
+
+class CompanyUpdate(BaseModel):
+    company_name: str
+    contact_person: str
+    address: str
+
+class CompanyResponse(BaseModel):
+    company_id: int
+    company_name: str
+    contact_person: str
+    address: str
+
+    class Config:
+        orm_mode = True
+
+
+##############################################  underconstruction ###########################################
+
+class UnderconstructionCreate(BaseModel):
+    year: int
+    des_id: str
+
+class UnderconstructionUpdate(BaseModel):
+    year: int
+    des_id: str
+
+class UnderconstructionResponse(BaseModel):
+    uc_id: int
+    year: int
+    des_id: str
+    edit_date: datetime
+
+    class Config:
+        orm_mode = True
+
+#########################   Hirarchy create := City → Sublocation → Area → Property → PropertyDetails → PropertyContacts. ################
+
+
+class PropertyContactSchema(BaseModel):
+    contact_person: str
+    email: str
+    mobile: str
+
+class PropertyDetailSchema(BaseModel):
+    floor: int
+    unit_no: str
+    wing: str
+    car_parking: str
+    rate_buy: float
+    rate_lease: float
+    remarks: str
+    contacts: List[PropertyContactSchema]
+
+class PropertySchema(BaseModel):
+    building: str
+    address: str
+    pin: str
+    company: str
+    status_code: str  # Active, Inactive, Sold, etc.
+    property_type: str  # Residential, Commercial, etc.
+    c_status: str  # Occupied, Lease, Available, etc.
+    usp: Optional[str] = None  # Unique Selling Point
+    property_details: List[PropertyDetailSchema]
+
+class AreaSchema(BaseModel):
+    area_name: str
+    properties: List[PropertySchema]
+
+class SublocationSchema(BaseModel):
+    sublocation_name: str
+    areas: List[AreaSchema]
+
+class CitySchema(BaseModel):
+    city_name: str
+    sublocations: List[SublocationSchema]
+
+    class Config:
+        orm_mode = True
+
    

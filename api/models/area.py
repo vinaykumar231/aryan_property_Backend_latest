@@ -14,3 +14,4 @@ class Area(Base):
 
     # Relationships
     sublocation = relationship("Sublocation", back_populates="areas")
+    property = relationship("Property", back_populates="area")

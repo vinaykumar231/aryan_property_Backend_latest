@@ -7,3 +7,7 @@ from .description import router as description_router
 from .propertyContacts import router as propertyContacts_router
 from .city import router as city_router
 from .sublocation import router as sublocation_router
+from .area import router as area_router
+from .companies import router as companies_router
+from .underconstruction import router as underconstruction_router
+from .property_with_hierarchy import router as property_with_hierarchy_router

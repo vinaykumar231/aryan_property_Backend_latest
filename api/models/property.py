@@ -26,6 +26,7 @@ class Property(Base):
     c_status = Column(String(50))  # Occupied, lease , available, Under Maintenance
     lease_code = Column(String(50), ForeignKey("lease_sale.lease_id"))
     des_code = Column(String(50), ForeignKey("descriptions.des_id"))
+    area_id=Column(String(50), ForeignKey("area.area_id"))
     usp = Column(String(255))  #(unique sell point) Prime Location, near metro station
 
     # Relationships
@@ -33,6 +34,8 @@ class Property(Base):
     descriptions = relationship("Description", back_populates="property", foreign_keys=[Description.property_id])
     contacts = relationship("PropertyContacts", back_populates="property")
     user = relationship("AriyanspropertiesUser", back_populates="property")
+    area = relationship("Area", back_populates="property")
+    
     
 
     @validates('property_code')

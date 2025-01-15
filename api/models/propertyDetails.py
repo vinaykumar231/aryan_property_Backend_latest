@@ -24,4 +24,5 @@ class PropertyDetails(Base):
     # Relationships
     user = relationship("AriyanspropertiesUser", back_populates="property_details")
     property = relationship("Property", back_populates="property_details")
+    contacts = relationship("PropertyContacts", back_populates="property_detail")
 
