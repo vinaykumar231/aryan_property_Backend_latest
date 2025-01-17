@@ -2,6 +2,7 @@
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, TIMESTAMP, BIGINT, Enum, ForeignKey
 from sqlalchemy.orm import relationship
 from api.models.description import Description
+from ..models.leaseSale import LeaseSale
 from database import Base
 from datetime import datetime
 from sqlalchemy.orm import validates,Session
@@ -31,10 +32,11 @@ class Property(Base):
 
     # Relationships
     property_details = relationship("PropertyDetails", back_populates="property")
-    descriptions = relationship("Description", back_populates="property", foreign_keys=[Description.property_id])
+    descriptions = relationship("Description", back_populates="property")
     contacts = relationship("PropertyContacts", back_populates="property")
     user = relationship("AriyanspropertiesUser", back_populates="property")
     area = relationship("Area", back_populates="property")
+    lease_sales = relationship("LeaseSale", back_populates="property")
     
     
 

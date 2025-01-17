@@ -8,5 +8,9 @@ from datetime import datetime
 class LeaseSale(Base):
     __tablename__ = "lease_sale"
     lease_id = Column(String(50), primary_key=True, index=True)
+    #property_code = Column(String(50), ForeignKey("property.property_code"))
     lease_type = Column(String(50))
     edit_date = Column(DateTime, default=datetime.utcnow)
+
+    property = relationship("Property", back_populates="lease_sales")
+    

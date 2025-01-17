@@ -11,8 +11,8 @@ class Description(Base):
     __tablename__ = "descriptions"
     des_id = Column(String(50), primary_key=True, index=True)
     description = Column(Text)
-    property_id = Column(String(50), ForeignKey("property.property_code"))
+    #property_id = Column(String(50), ForeignKey("property.property_code"))
     edit_date = Column(DateTime, default=datetime.utcnow)
 
     # Specify the foreign key explicitly for the 'property' relationship
-    property = relationship("Property", back_populates="descriptions", foreign_keys=[property_id])
+    property = relationship("Property", back_populates="descriptions")

@@ -321,4 +321,91 @@ class CitySchema(BaseModel):
     class Config:
         orm_mode = True
 
+############################################## property hierarchy data ###################################
+
+class PropertyContactSchema(BaseModel):
+    contact_person: str
+    email: str
+    mobile: str
+
+class PropertyDetailSchema(BaseModel):
+    floor: int
+    unit_no: str
+    wing: str
+    car_parking: str
+    rate_buy: float
+    rate_lease: float
+    remarks: str
+    contacts: List[PropertyContactSchema]
+
+class PropertySchema(BaseModel):
+    building: str
+    address2: str
+    description: str
+    area: str
+    pin: str
+    company: str
+    status_code: str
+    property_type: str
+    c_status: str
+    lease_type: Optional[str]
+    usp: Optional[str]
+    property_details: List[PropertyDetailSchema]
+
+class AreaSchema(BaseModel):
+    area_name: str
+    properties: List[PropertySchema]
+
+class SublocationSchema(BaseModel):
+    sublocation_name: str
+    areas: List[AreaSchema]
+
+class CitySchema(BaseModel):
+    city_name: str
+    sublocations: List[SublocationSchema]
+
+
+class PropertyContactUpdateSchema(BaseModel):
+    contact_person: Optional[str]
+    email: Optional[str]
+    mobile: Optional[str]
+
+class PropertyDetailUpdateSchema(BaseModel):
+    floor: Optional[int]
+    unit_no: Optional[str]
+    wing: Optional[str]
+    car_parking: Optional[str]
+    rate_buy: Optional[float]
+    rate_lease: Optional[float]
+    remarks: Optional[str]
+    contacts: Optional[List[PropertyContactUpdateSchema]]  
+
+class PropertyUpdateSchema(BaseModel):
+    building: Optional[str]
+    address2: Optional[str]
+    description: Optional[str]
+    area: Optional[str]
+    pin: Optional[str]
+    company: Optional[str]
+    status_code: Optional[str]
+    property_type: Optional[str]
+    c_status: Optional[str]
+    lease_type: Optional[str]
+    usp: Optional[str]
+    property_details: Optional[List[PropertyDetailUpdateSchema]]  
+class AreaUpdateSchema(BaseModel):
+    area_name: Optional[str]  
+    properties: Optional[List[PropertyUpdateSchema]]  
+
+class SublocationUpdateSchema(BaseModel):
+    sublocation_name: Optional[str] 
+    areas: Optional[List[AreaUpdateSchema]]  
+
+class CityUpdateSchema(BaseModel):
+    city_name: Optional[str]  
+    sublocations: Optional[List[SublocationUpdateSchema]]  
+
+    class Config:
+        orm_mode = True
+
    
