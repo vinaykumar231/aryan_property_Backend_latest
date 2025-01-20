@@ -12,6 +12,7 @@ class PropertyContacts(Base):
     contact_person = Column(String(100))
     email = Column(String(100))
     mobile = Column(String(15))
+    contact_person_address=Column(Text)
 
     # Relationships
     property = relationship("Property", back_populates="contacts")

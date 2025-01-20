@@ -9,13 +9,14 @@ from sqlalchemy.orm import validates,Session
 from database import SessionLocal
 
 
-# Property Table  P123', 'Skyline Tower', '2nd Avenue', 'New York', 'Manhattan', '10001', 'RealtyCorp', 'Available', 1, 'Active', L342, D124, 'Prime Location');
+# Property Table  P123','Skyline Tower project', 'Skyline Tower', '2nd Avenue', 'New York', 'Manhattan', '10001', 'RealtyCorp', 'Available', 1, 'Active', L342, D124, 'Prime Location');
 class Property(Base):
     __tablename__ = "property"
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     property_code = Column(String(50), primary_key=True, index=True, unique=True,)
     user_id = Column(Integer, ForeignKey("users.user_id"))
+    project_name = Column(String(255))  
     building = Column(String(200))
     address2 = Column(String(200))
     city = Column(String(100))
@@ -27,8 +28,9 @@ class Property(Base):
     c_status = Column(String(50))  # Occupied, lease , available, Under Maintenance
     lease_code = Column(String(50), ForeignKey("lease_sale.lease_id"))
     des_code = Column(String(50), ForeignKey("descriptions.des_id"))
-    area_id=Column(String(50), ForeignKey("area.area_id"))
+    area_id=Column(Integer, ForeignKey("area.area_id"))
     usp = Column(String(255))  #(unique sell point) Prime Location, near metro station
+    edit_date = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
     property_details = relationship("PropertyDetails", back_populates="property")
@@ -37,6 +39,7 @@ class Property(Base):
     user = relationship("AriyanspropertiesUser", back_populates="property")
     area = relationship("Area", back_populates="property")
     lease_sales = relationship("LeaseSale", back_populates="property")
+    property_types = relationship("PropertyTypes", back_populates="property")
     
     
 

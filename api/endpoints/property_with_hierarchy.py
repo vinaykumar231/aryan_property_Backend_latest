@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session,joinedload
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 from ..schemas import CitySchema, CityUpdateSchema
+import traceback
 
 router = APIRouter()
 
@@ -91,6 +92,7 @@ async def add_city(
                     property_obj = Property(
                         property_code=property_code,
                         user_id=current_user.user_id,
+                        project_name=property_data.project_name,
                         building=property_data.building,
                         address2=property_data.address2,
                         city=city.city_name,
@@ -127,6 +129,7 @@ async def add_city(
                                 contact_person=contact_data.contact_person,
                                 email=contact_data.email,
                                 mobile=contact_data.mobile,
+                                contact_person_address=contact_data.contact_person_address,
                                 property_detail_id=property_detail.id,
                                 property_id=property_obj.property_code,
                             )
@@ -185,12 +188,14 @@ async def get_all_cities(db: Session = Depends(get_db)):
                                 "contacts": [
                                     {"contact_person": contact.contact_person, 
                                      "email": contact.email, 
-                                     "mobile": contact.mobile}
+                                     "mobile": contact.mobile,
+                                    "contact_person_address": contact.contact_person_address}
                                     for contact in detail.contacts
                                 ]
                             })
                         
                         property_list.append({
+                            "project_name": property_obj.project_name,
                             "building": property_obj.building,
                             "address2": property_obj.address2,
                             "description": property_obj.descriptions.description,
@@ -279,6 +284,7 @@ async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db
                 "area_name": property_obj.area.area_name if property_obj.area else None,
             },
             "properties":{
+                "project_name": property_obj.project_name,
                 "building": property_obj.building,
                 "address2": property_obj.address2,
                 "description": property_obj.descriptions.description,
@@ -292,7 +298,7 @@ async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db
             },
             "property_details": property_detail_list,
             "contacts": [
-                    {"contact_person": contact.contact_person, "email": contact.email, "mobile": contact.mobile}
+                    {"contact_person": contact.contact_person, "email": contact.email, "mobile": contact.mobile,  "contact_person_address": contact.contact_person_address}
                     for contact in detail.contacts
                 ]
            
@@ -354,6 +360,8 @@ async def update_property_hierarchy(
                                         lease_sale.lease_type = property_data.lease_type
                                 if property_data.usp:
                                     property_obj.usp = property_data.usp
+                                if property_data.project_name: 
+                                    property_obj.project_name = property_data.project_name
                                     
                                 # Update property details
                                 for detail_data in property_data.property_details:
@@ -384,6 +392,8 @@ async def update_property_hierarchy(
                                                     contact.email = contact_data.email
                                                 if contact_data.mobile:
                                                     contact.mobile = contact_data.mobile
+                                                if contact_data.contact_person_address:  
+                                                    contact.contact_person_address = contact_data.contact_person_address
 
         db.commit()
         return {"message": "Property hierarchy updated successfully"}
@@ -398,7 +408,7 @@ async def update_property_hierarchy(
         raise HTTPException(status_code=500, detail="An unexpected error occurred while updating property hierarchy data")
 
 
-import traceback
+
 
 @router.delete("/delete_property_hierarchy/{property_id}", response_model=None)
 async def delete_property_hierarchy(

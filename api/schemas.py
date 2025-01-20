@@ -48,6 +48,7 @@ class UpdateUser(BaseModel):
 ##########################################   Property   ####################################################
 
 class PropertyCreate(BaseModel):
+    project_name:Optional[str] = None
     building: Optional[str] = None
     address2: Optional[str] = None
     city: Optional[str] = None
@@ -59,9 +60,11 @@ class PropertyCreate(BaseModel):
     c_status: Optional[str] = None  
     lease_code: Optional[str] = None
     des_code: Optional[str] = None
+    area_id:Optional[int] = None
     usp: Optional[str] = None  
 
 class PropertyUpdate(BaseModel):
+    project_name:Optional[str] = None
     building: Optional[str] = None
     address2: Optional[str] = None
     city: Optional[str] = None
@@ -73,6 +76,7 @@ class PropertyUpdate(BaseModel):
     c_status: Optional[str] = None
     lease_code: Optional[str] = None
     des_code: Optional[str] = None
+    area_id:Optional[int] = None
     usp: Optional[str] = None
     
     class Config:
@@ -327,6 +331,7 @@ class PropertyContactSchema(BaseModel):
     contact_person: str
     email: str
     mobile: str
+    contact_person_address: Optional[str]
 
 class PropertyDetailSchema(BaseModel):
     floor: int
@@ -339,6 +344,7 @@ class PropertyDetailSchema(BaseModel):
     contacts: List[PropertyContactSchema]
 
 class PropertySchema(BaseModel):
+    project_name: str  # Added project_name field
     building: str
     address2: str
     description: str
@@ -364,11 +370,13 @@ class CitySchema(BaseModel):
     city_name: str
     sublocations: List[SublocationSchema]
 
+###########################################
 
 class PropertyContactUpdateSchema(BaseModel):
     contact_person: Optional[str]
     email: Optional[str]
     mobile: Optional[str]
+    contact_person_address: Optional[str]
 
 class PropertyDetailUpdateSchema(BaseModel):
     floor: Optional[int]
@@ -381,6 +389,7 @@ class PropertyDetailUpdateSchema(BaseModel):
     contacts: Optional[List[PropertyContactUpdateSchema]]  
 
 class PropertyUpdateSchema(BaseModel):
+    project_name: Optional[str]
     building: Optional[str]
     address2: Optional[str]
     description: Optional[str]

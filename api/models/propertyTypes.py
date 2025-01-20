@@ -9,3 +9,6 @@ class PropertyTypes(Base):
     type_id = Column(String(50), primary_key=True, index=True)
     category = Column(String(100))  #  'Commercial',Industrial' 'Retail','Office Space','Hospitality',
     edit_date = Column(DateTime, default=datetime.utcnow)
+
+    property = relationship("Property", back_populates="property_types")
+   
