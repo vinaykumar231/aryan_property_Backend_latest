@@ -5,7 +5,7 @@ from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
 from api.endpoints import (user_rouetr, propertyDetails_router, property_router, propertyTypes_router, leaseSale_router, description_router, propertyContacts_router,city_router,
-                           sublocation_router, area_router, companies_router, underconstruction_router, property_with_hierarchy_router)
+                           sublocation_router, area_router, companies_router, underconstruction_router, property_with_hierarchy_router, log_router)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -44,6 +44,7 @@ app.include_router(sublocation_router, prefix="/api", tags=["Sublocation Routes"
 app.include_router(area_router, prefix="/api", tags=["Area Routes"])
 app.include_router(companies_router, prefix="/api", tags=["Companies Routes"])
 app.include_router(underconstruction_router, prefix="/api", tags=["Underconstruction Routes"])
+app.include_router(log_router, prefix="/api", tags=["Logs Routes"])
 
 if __name__ == "__main__":
     import uvicorn

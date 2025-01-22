@@ -108,7 +108,7 @@ def delete_lease_sale(
 
         db.delete(db_lease_sale)
         db.commit()
-        return {"message": "lease sale deleted successfully.","lease_sale":db_lease_sale}
+        return {"message": "lease sale deleted successfully.","lease_id":lease_id}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

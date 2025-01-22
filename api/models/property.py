@@ -40,6 +40,8 @@ class Property(Base):
     area = relationship("Area", back_populates="property")
     lease_sales = relationship("LeaseSale", back_populates="property")
     property_types = relationship("PropertyTypes", back_populates="property")
+    logs = relationship("Logs", back_populates="property")
+    underconstructions = relationship("Underconstruction", back_populates="property")
     
     
 

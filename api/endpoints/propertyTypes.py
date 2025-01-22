@@ -110,7 +110,7 @@ def delete_property_type(
 
         db.delete(db_property_type)
         db.commit()
-        return {"message": "property type deleted successfully.","property_type":db_property_type}
+        return {"message": "property type deleted successfully.","type_id":type_id}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

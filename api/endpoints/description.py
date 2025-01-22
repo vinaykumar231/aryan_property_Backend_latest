@@ -15,16 +15,12 @@ def create_description(
     db: Session = Depends(get_db)
 ):
     try:
-        db_property = db.query(Property).filter(Property.property_code == description.property_id).first()
-        if not db_property:
-            raise HTTPException(status_code=404, detail="property id not found")
         
         count = db.query(Description).count() + 1
         des_id = f"D{count:03}"
         db_description = Description(
             des_id=des_id,
             description=description.description,
-            property_id=description.property_id
         )
         db.add(db_description)
         db.commit()
@@ -111,7 +107,7 @@ def delete_description(
         
         db.delete(db_description)
         db.commit()
-        return {"message": "Property description deleted successfully.","description":db_description}
+        return {"message": "Property description deleted successfully.","des_id":des_id}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

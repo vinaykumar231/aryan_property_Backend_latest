@@ -7,6 +7,10 @@ from datetime import datetime
 class Underconstruction(Base):
     __tablename__ = "underconstruction"
     uc_id = Column(Integer, primary_key=True, index=True)
+    property_code = Column(String(50), ForeignKey("property.property_code"))
     year = Column(Integer)
     des_id = Column(String(50), ForeignKey("descriptions.des_id"))
     edit_date = Column(DateTime, default=datetime.utcnow)
+
+    property = relationship("Property", back_populates="underconstructions")
+    description = relationship("Description", back_populates="underconstructions")

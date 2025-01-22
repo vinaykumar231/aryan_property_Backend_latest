@@ -17,4 +17,4 @@ class PropertyContacts(Base):
     # Relationships
     property = relationship("Property", back_populates="contacts")
     property_detail = relationship("PropertyDetails", back_populates="contacts")
-    property_detail = relationship("PropertyDetails", back_populates="contacts")
+    # property_detail = relationship("PropertyDetails", back_populates="contacts")

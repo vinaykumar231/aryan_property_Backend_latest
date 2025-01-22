@@ -152,7 +152,7 @@ class LeaseSaleResponse(BaseModel):
 
 class DescriptionCreate(BaseModel):
     description: str
-    property_id: str
+    # property_id: str
 
 class DescriptionUpdate(BaseModel):
     description: str
@@ -169,10 +169,11 @@ class DescriptionResponse(BaseModel):
 ############################################################   Property Contact ##########################################################
 
 class PropertyContactBase(BaseModel):
-    property_id: str
+    property_detail_id:str
     contact_person: str
     email: EmailStr
     mobile: str
+    contact_person_address:str
 
 class PropertyContactCreate(PropertyContactBase):
     pass
@@ -182,6 +183,7 @@ class PropertyContactUpdate(BaseModel):
     contact_person: Optional[str]
     email: Optional[EmailStr]
     mobile: Optional[str]
+    contact_person_address:Optional[str]
 
     class Config:
         orm_mode = True
@@ -265,10 +267,13 @@ class CompanyResponse(BaseModel):
 ##############################################  underconstruction ###########################################
 
 class UnderconstructionCreate(BaseModel):
+    property_code: str
     year: int
     des_id: str
+    
 
 class UnderconstructionUpdate(BaseModel):
+    property_code: str
     year: int
     des_id: str
 

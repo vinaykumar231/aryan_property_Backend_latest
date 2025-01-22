@@ -142,7 +142,7 @@ def delete_property_detail(
         
         db.delete(db_property_detail)
         db.commit()
-        return {"message": "Property detail deleted successfully.","property_detail":db_property_detail}
+        return {"message": "Property detail deleted successfully.","property_detail_id":property_detail_id}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

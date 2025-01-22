@@ -28,6 +28,13 @@ class AriyanspropertiesUser(Base):
     user_type = Column(String(100))
     phone_no = Column(BIGINT)
     created_on = Column(DateTime, default=func.now())
+
+    # Permission fields 
+    # can_print_report = Column(Boolean, default=False)
+    # can_view = Column(Boolean, default=False)  
+    # can_edit = Column(Boolean, default=False)
+    # can_delete = Column(Boolean, default=False)
+    # can_print_report = Column(Boolean, default=False)
     updated_on = Column(TIMESTAMP, server_default=func.now(), onupdate=func.current_timestamp())
 
      # Relationships

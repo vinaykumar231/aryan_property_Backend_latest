@@ -1,7 +1,10 @@
+from datetime import datetime
 from fastapi import APIRouter, HTTPException, Depends
+import pytz
 from sqlalchemy.orm import Session,joinedload
 from api.models.description import Description
 from api.models.leaseSale import LeaseSale
+from api.models.logs import Logs
 from api.models.propertyTypes import PropertyTypes
 from api.models.user import AriyanspropertiesUser
 from auth.auth_bearer import get_current_user
@@ -13,7 +16,8 @@ from sqlalchemy.exc import SQLAlchemyError
 
 router = APIRouter()
 
-from sqlalchemy.orm import aliased
+utc_now = pytz.utc.localize(datetime.utcnow())
+ist_now = utc_now.astimezone(pytz.timezone('Asia/Kolkata'))
 
 @router.post("/property/", response_model=None)
 def create_property(
@@ -24,27 +28,22 @@ def create_property(
     try:
         property_code = generate_property_code(db=db)
 
-        # Check if the property code already exists
         existing_property = db.query(Property).filter(Property.property_code == property_code).first()
         if existing_property:
             raise HTTPException(status_code=400, detail="Property code already exists.")
         
-        # Properly join PropertyTypes to ensure no cartesian product warning
-        property_type_db = db.query(PropertyTypes).join(Property).filter(Property.property_type == PropertyTypes.type_id).first()
+        property_type_db = db.query(PropertyTypes).join(Property).filter(Property.property_type == property.property_type).first()
         if not property_type_db:
             raise HTTPException(status_code=400, detail="Property type does not exist.")
         
-        # Check if lease code exists
         property_lease_code_exists = db.query(LeaseSale).filter(LeaseSale.lease_id == property.lease_code).first()
         if not property_lease_code_exists:
             raise HTTPException(status_code=400, detail="Lease code does not exist.")
         
-        # Check if description code exists
         property_des_code_exists = db.query(Description).filter(Description.des_id == property.des_code).first()
         if not property_des_code_exists:
             raise HTTPException(status_code=400, detail="Description code does not exist.")
 
-        # Create the property object
         property_obj = Property(
             property_code=property_code,
             user_id=current_user.user_id,
@@ -56,13 +55,23 @@ def create_property(
             pin=property.pin,
             company=property.company,
             status_code=property.status_code,
-            property_type=property.property_type,  # Use direct property_type
+            property_type=property.property_type,  
             c_status=property.c_status,
-            lease_code=property.lease_code,  # Assuming lease_code is directly provided
-            des_code=property.des_code,  # Assuming des_code is directly provided
+            lease_code=property.lease_code,  
+            des_code=property.des_code, 
             usp=property.usp,
         )
         db.add(property_obj)
+        db.commit()
+
+        # Log the creation action
+        log_action=Logs(
+            user_id=current_user.user_id,
+            action="Property Created",
+            property_id=property_obj.property_code,
+            timestamp=ist_now,
+        )
+        db.add(log_action)
         db.commit()
 
         return {"message": "Property created successfully", "property_code": property_obj.property_code}
@@ -77,7 +86,7 @@ def create_property(
 
 
 @router.get("/property/{property_code}", response_model=None)
-async def get_property_by_code(property_code: str, db: Session = Depends(get_db)):
+async def get_property_by_code(property_code: str, db: Session = Depends(get_db),current_user: AriyanspropertiesUser = Depends(get_current_user)):
     try:
         # Fetch the property with the given property_code
         property_obj = db.query(Property).options(
@@ -92,6 +101,15 @@ async def get_property_by_code(property_code: str, db: Session = Depends(get_db)
             raise HTTPException(status_code=404, detail=f"Property with property_code {property_code} not found")
 
         # Return the property details with related names
+
+        log_action = Logs(
+                user_id=current_user.user_id,
+                action="Property Fetched",
+                property_id=property_obj.property_code,
+                timestamp=ist_now,
+            )
+        db.add(log_action)
+        db.commit()
         property_data = {
             "property_code": property_obj.property_code,
             "address2": property_obj.address2,
@@ -123,7 +141,8 @@ async def get_property_by_code(property_code: str, db: Session = Depends(get_db)
 
 @router.get("/propertyget_all/", response_model=None)
 async def get_all_properties(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
         # Fetch properties with related data using joinedload
@@ -143,6 +162,16 @@ async def get_all_properties(
         # Create a list of property data to return
         property_list = []
         for property_obj in property_objs:
+
+            log_action = Logs(
+                user_id=current_user.user_id,
+                action="Property Fetched",
+                property_id=property_obj.property_code,
+                timestamp=ist_now,
+            )
+            db.add(log_action)
+            db.commit()
+
             property_data = {
                 "property_code": property_obj.property_code,
                 "address2": property_obj.address2,
@@ -175,72 +204,75 @@ async def get_all_properties(
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
     
+# @router.put("/update_property_data/{property_code}", response_model=None)
+# def update_property(
+#     property_code: str,
+#     property_update: PropertyUpdate,
+#     db: Session = Depends(get_db),
+#     current_user: AriyanspropertiesUser = Depends(get_current_user)
+# ):
+#     try:
+#         # Fetch the existing property by code
+#         db_property = db.query(Property).filter(Property.property_code == property_code).first()
 
-@router.put("/update_property_data/{property_code}", response_model=None)
-def update_property(
-    property_code: str,
-    property_update: PropertyUpdate,
-    db: Session = Depends(get_db),
-    current_user: AriyanspropertiesUser = Depends(get_current_user)
-):
-    try:
-        db_property = db.query(Property).filter(Property.property_code == property_code).first()
-        if not db_property:
-            raise HTTPException(status_code=404, detail="Property not found.")
-        
-        if property_update.property_type:
-            property_type_db = db.query(Property).filter(Property.property_type == property_update.property_type).first()
-            if not property_type_db:
-                raise HTTPException(status_code=400, detail="Property type does not exist in the property table.")
-    
-        if property_update.lease_code:
-            property_lease_code_exists = db.query(Property).filter(Property.lease_code == property_update.lease_code).first()
-            if not property_lease_code_exists:
-                raise HTTPException(status_code=400, detail="Lease code does not exist in the property table.")
-        
-        if property_update.des_code:
-            property_des_code_exists = db.query(Property).filter(Property.des_code == property_update.des_code).first()
-            if not property_des_code_exists:
-                raise HTTPException(status_code=400, detail="Description code does not exist in the property table.")
-        
-        if property_update.building is not None:
-            db_property.building = property_update.building
-        if property_update.address2 is not None:
-            db_property.address2 = property_update.address2
-        if property_update.city is not None:
-            db_property.city = property_update.city
-        if property_update.area is not None:
-            db_property.area = property_update.area
-        if property_update.pin is not None:
-            db_property.pin = property_update.pin
-        if property_update.company is not None:
-            db_property.company = property_update.company
-        if property_update.status_code is not None:
-            db_property.status_code = property_update.status_code
-        if property_update.property_type is not None:
-            db_property.property_type = property_update.property_type
-        if property_update.c_status is not None:
-            db_property.c_status = property_update.c_status
-        if property_update.lease_code is not None:
-            db_property.lease_code = property_update.lease_code
-        if property_update.des_code is not None:
-            db_property.des_code = property_update.des_code
-        if property_update.usp is not None:
-            db_property.usp = property_update.usp
+#         if not db_property:
+#             raise HTTPException(status_code=404, detail="Property not found.")
 
-        db.commit()
-        db.refresh(db_property)
+#         # Fetch and update property_type if provided
+#         if property_update.property_type:
+#             property_type_db = db.query(PropertyTypes).filter(PropertyTypes.type_id == property_update.property_type).first()
+#             if not property_type_db:
+#                 raise HTTPException(status_code=400, detail="Property type does not exist.")
+#             db_property.property_type = property_type_db  # Assign the actual PropertyTypes object
 
-        return {"message": "property data updated successfully.","property":db_property}
+#         # Fetch and update lease_code if provided
+#         if property_update.lease_code:
+#             property_lease_code_exists = db.query(LeaseSale).filter(LeaseSale.lease_id == property_update.lease_code).first()
+#             if not property_lease_code_exists:
+#                 raise HTTPException(status_code=400, detail="Lease code does not exist.")
+#             db_property.lease_code = property_lease_code_exists  # Assign the actual LeaseSale object
 
-    except HTTPException as http_exc:
-        raise http_exc
-    except SQLAlchemyError as db_exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail="A database error occurred while updating property data.")
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while updating property data.")
+#         # Fetch and update des_code if provided
+#         if property_update.des_code:
+#             property_des_code_exists = db.query(Description).filter(Description.des_id == property_update.des_code).first()
+#             if not property_des_code_exists:
+#                 raise HTTPException(status_code=400, detail="Description code does not exist.")
+#             db_property.des_code = property_des_code_exists  # Assign the actual Description object
+
+#         # Update other fields only if provided
+#         if property_update.building is not None:
+#             db_property.building = property_update.building
+#         if property_update.address2 is not None:
+#             db_property.address2 = property_update.address2
+#         if property_update.city is not None:
+#             db_property.city = property_update.city
+#         if property_update.area is not None:
+#             db_property.area = property_update.area
+#         if property_update.pin is not None:
+#             db_property.pin = property_update.pin
+#         if property_update.company is not None:
+#             db_property.company = property_update.company
+#         if property_update.status_code is not None:
+#             db_property.status_code = property_update.status_code
+#         if property_update.c_status is not None:
+#             db_property.c_status = property_update.c_status
+#         if property_update.usp is not None:
+#             db_property.usp = property_update.usp
+
+#         # Commit the changes to the database
+#         db.commit()
+#         db.refresh(db_property)
+
+#         return {"message": "Property data updated successfully.", "property_code": db_property.property_code}
+
+#     except HTTPException as http_exc:
+#         raise http_exc
+#     except SQLAlchemyError as db_exc:
+#         db.rollback()
+#         raise HTTPException(status_code=500, detail="A database error occurred while updating property data.")
+#     except Exception as e:
+#         db.rollback()
+#         raise HTTPException(status_code=500, detail=f"An unexpected error occurred while updating property data: {str(e)}")
 
 @router.delete("/delete_property_data/{property_code}", response_model=None)
 def delete_property(
@@ -252,10 +284,20 @@ def delete_property(
         property = db.query(Property).filter(Property.property_code == property_code).first()
         if not property:
             raise HTTPException(status_code=404, detail="Property not found.")
+        
+        # Log the creation action
+        log_action=Logs(
+            user_id=current_user.user_id,
+            action="Property Deleted",
+            property_id=property_code,
+        )
+        db.add(log_action)
+        db.commit()
 
         db.delete(property)
         db.commit()
-        return {"message": "Property deleted successfully.", "property":property}
+        
+        return {"message": "Property deleted successfully.", "property_code":property_code}
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:

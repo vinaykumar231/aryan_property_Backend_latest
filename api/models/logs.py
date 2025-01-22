@@ -14,4 +14,6 @@ class Logs(Base):
 
     # Relationships
     user = relationship("AriyanspropertiesUser", back_populates="logs")
+    property = relationship("Property", back_populates="logs")
+   
     

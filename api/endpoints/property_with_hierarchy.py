@@ -9,6 +9,7 @@ from api.models.area import Area
 from api.models.city import City
 from api.models.description import Description
 from api.models.leaseSale import LeaseSale
+from api.models.logs import Logs
 from api.models.property import Property, generate_property_code
 from api.models.propertyContacts import PropertyContacts
 from api.models.propertyDetails import PropertyDetails
@@ -25,6 +26,8 @@ import traceback
 
 router = APIRouter()
 
+utc_now = pytz.utc.localize(datetime.utcnow())
+ist_now = utc_now.astimezone(pytz.timezone('Asia/Kolkata'))
 
 @router.post("/add_property_details_with_hierarchy/", response_model=None)
 async def add_city(
@@ -134,6 +137,14 @@ async def add_city(
                                 property_id=property_obj.property_code,
                             )
                             db.add(contact)
+        log_action=Logs(
+            user_id=current_user.user_id,
+            action="Created all property hierarchy data",
+            property_id=property_obj.property_code,
+            timestamp=ist_now,
+        )
+        db.add(log_action)
+        db.commit()
 
         db.commit()
         return {"message": "property hierarchy data added successfully"}
@@ -150,7 +161,7 @@ async def add_city(
 
 
 @router.get("/get_all_property_hierarchy/", response_model=None)
-async def get_all_cities(db: Session = Depends(get_db)):
+async def get_all_cities(db: Session = Depends(get_db), current_user: AriyanspropertiesUser = Depends(get_current_user)):
     try:
         result = db.execute(select(City))
         cities = result.scalars().all()
@@ -225,6 +236,14 @@ async def get_all_cities(db: Session = Depends(get_db)):
                 "sublocations": sublocation_list
             })
         
+        log_action = Logs(
+                user_id=current_user.user_id,
+                action="Fetched all property hierarchy data",
+                property_id=property_obj.property_code,
+                timestamp=ist_now,
+            )
+        db.add(log_action)
+        db.commit()
         return city_list
     except HTTPException as http_exc:
         raise http_exc
@@ -239,7 +258,7 @@ async def get_all_cities(db: Session = Depends(get_db)):
 
 
 @router.get("/get_property_hierarchy_by_id/{property_id}", response_model=None)
-async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db)):
+async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db), current_user: AriyanspropertiesUser = Depends(get_current_user)):
     try:
         result = db.execute(
             select(Property)
@@ -272,6 +291,15 @@ async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db
                 "remarks": detail.remarks,
                 
             })
+
+        log_action = Logs(
+                user_id=current_user.user_id,
+                action="Fetched all property hierarchy data",
+                property_id=property_obj.property_code,
+                timestamp=ist_now,
+            )
+        db.add(log_action)
+        db.commit()
 
         return {
              "city":{
@@ -394,7 +422,15 @@ async def update_property_hierarchy(
                                                     contact.mobile = contact_data.mobile
                                                 if contact_data.contact_person_address:  
                                                     contact.contact_person_address = contact_data.contact_person_address
-
+        
+         # Log the creation action
+        log_action=Logs(
+            user_id=current_user.user_id,
+            action="updated all property hierarchy data ",
+            property_id=property_id,
+        )
+        db.add(log_action)
+    
         db.commit()
         return {"message": "Property hierarchy updated successfully"}
     except HTTPException as http_exc:
@@ -420,6 +456,15 @@ async def delete_property_hierarchy(
         property_details = db.query(PropertyDetails).filter(PropertyDetails.property_code == property_id).first()
         if not property_details:
             raise HTTPException(status_code=404, detail="Property not found")
+        
+         # Log the creation action
+        log_action=Logs(
+            user_id=current_user.user_id,
+            action="Deleted all property hierarchy data",
+            property_id=property_id,
+        )
+        db.add(log_action)
+        db.commit()
 
         db.query(PropertyContacts).filter(PropertyContacts.property_detail_id == property_details.id).delete(synchronize_session=False)
 

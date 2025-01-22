@@ -16,3 +16,4 @@ class Description(Base):
 
     # Specify the foreign key explicitly for the 'property' relationship
     property = relationship("Property", back_populates="descriptions")
+    underconstructions = relationship("Underconstruction", back_populates="description")
