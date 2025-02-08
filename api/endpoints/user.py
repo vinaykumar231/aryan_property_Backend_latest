@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import jwt
 from fastapi import APIRouter, Depends, HTTPException,Form
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from api.models.logs import Logs
 from auth.auth_bearer import JWTBearer, get_admin, get_current_user
@@ -11,6 +12,7 @@ import bcrypt
 import random
 import pytz
 from sqlalchemy.exc import SQLAlchemyError
+from enum import Enum
 
 
 router = APIRouter()
@@ -199,6 +201,260 @@ def delete_ariyansproperties_user(user_id: int, db: Session = Depends(get_db)):
     except Exception:
         db.rollback()
         raise HTTPException(status_code=500, detail="An unexpected error occurred while delete user.")
+    
+################################################# user permissions all api ###############################################
+
+@router.put("/permissions/can_add/{user_id}", response_model=None)
+async def update_can_add_permission(user_id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+        if not user:
+           raise HTTPException(status_code=404, detail="User not found.")
+        
+        user.can_add = True
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "user_id":user.user_id,
+            "user_name":user.user_name,
+            "user_email":user.user_email,  
+            "user_type" :user.user_type,
+            "phone_no" :user.phone_no,
+            "can_print_report": user.can_print_report,
+            "can_add": user.can_add,
+            "can_view" :user.can_view,
+            "can_edit" :user.can_edit,
+            "can_delete": user.can_delete,
+
+        }
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="A database error occurred while updating print report permission.")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating print report permission.")
+
+ 
+@router.put("/permissions/can_view/{user_id}", response_model=None)
+async def update_can_view_permission(user_id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+        if not user:
+           raise HTTPException(status_code=404, detail="User not found.")
+        
+        user.can_view = True
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "user_id":user.user_id,
+            "user_name":user.user_name,
+            "user_email":user.user_email,  
+            "user_type" :user.user_type,
+            "phone_no" :user.phone_no,
+            "can_print_report": user.can_print_report,
+            "can_add": user.can_add,
+            "can_view" :user.can_view,
+            "can_edit" :user.can_edit,
+            "can_delete": user.can_delete,
+
+        }
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="A database error occurred while updating can view permission.")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating can view permission.")
+    
+@router.put("/permissions/can_edit/{user_id}", response_model=None)
+async def update_can_edit_permission(user_id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+        if not user:
+           raise HTTPException(status_code=404, detail="User not found.")
+        
+        user.can_edit = True
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "user_id":user.user_id,
+            "user_name":user.user_name,
+            "user_email":user.user_email,  
+            "user_type" :user.user_type,
+            "phone_no" :user.phone_no,
+            "can_print_report": user.can_print_report,
+            "can_add": user.can_add,
+            "can_view" :user.can_view,
+            "can_edit" :user.can_edit,
+            "can_delete": user.can_delete,
+
+        }
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="A database error occurred while updating can edit permission.")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating can edit permission.")
+    
+@router.put("/permissions/can_delete/{user_id}", response_model=None)
+async def update_can_delete_permission(user_id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+        if not user:
+           raise HTTPException(status_code=404, detail="User not found.")
+        
+        user.can_delete = True
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "user_id":user.user_id,
+            "user_name":user.user_name,
+            "user_email":user.user_email,  
+            "user_type" :user.user_type,
+            "phone_no" :user.phone_no,
+            "can_print_report": user.can_print_report,
+            "can_add": user.can_add,
+            "can_view" :user.can_view,
+            "can_edit" :user.can_edit,
+            "can_delete": user.can_delete,
+
+        }
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="A database error occurred while updating can delete permission.")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating can delete permission.")
+    
+@router.put("/permissions/print-report/{user_id}", response_model=None)
+async def update_print_report_permission(user_id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+        if not user:
+           raise HTTPException(status_code=404, detail="User not found.")
+        
+        user.can_print_report = True
+        db.commit()
+        db.refresh(user)
+
+        return {
+            "user_id":user.user_id,
+            "user_name":user.user_name,
+            "user_email":user.user_email,  
+            "user_type" :user.user_type,
+            "phone_no" :user.phone_no,
+            "can_print_report": user.can_print_report,
+            "can_add": user.can_add,
+            "can_view" :user.can_view,
+            "can_edit" :user.can_edit,
+            "can_delete": user.can_delete,
+
+        }
+    
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="A database error occurred while updating print report permission.")
+    except Exception:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating print report permission.")
+    
+#############################################
+    
+# class PermissionType(str, Enum):
+#     PRINT_REPORT = "print_report"
+#     ADD = "add"
+#     VIEW = "view"
+#     EDIT = "edit"
+#     DELETE = "delete"
+
+# class PermissionUpdate(BaseModel):
+#     permission_type: PermissionType
+
+# @router.put("/permissions/{user_id}", response_model=None)
+# async def update_user_permission(
+#     user_id: int, 
+#     permission: PermissionUpdate,
+#     db: Session = Depends(get_db)
+# ):
+#     try:
+#         user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
+#         if not user:
+#             raise HTTPException(status_code=404, detail="User not found.")
+        
+#         # Reset all permissions to False first
+#         user.can_print_report = False
+#         user.can_add = False
+#         user.can_view = False
+#         user.can_edit = False
+#         user.can_delete = False
+        
+#         # Set only the requested permission to True
+#         if permission.permission_type == PermissionType.PRINT_REPORT:
+#             user.can_print_report = True
+#         elif permission.permission_type == PermissionType.ADD:
+#             user.can_add = True
+#         elif permission.permission_type == PermissionType.VIEW:
+#             user.can_view = True
+#         elif permission.permission_type == PermissionType.EDIT:
+#             user.can_edit = True
+#         elif permission.permission_type == PermissionType.DELETE:
+#             user.can_delete = True
+
+#         db.commit()
+#         db.refresh(user)
+
+#         return {
+#             "user_id": user.user_id,
+#             "user_name": user.user_name,
+#             "user_email": user.user_email,  
+#             "user_type": user.user_type,
+#             "phone_no": user.phone_no,
+#             "can_print_report": user.can_print_report,
+#             "can_add": user.can_add,
+#             "can_view": user.can_view,
+#             "can_edit": user.can_edit,
+#             "can_delete": user.can_delete,
+#         }
+    
+#     except HTTPException as http_exc:
+#         raise http_exc
+#     except SQLAlchemyError:
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=500, 
+#             detail=f"A database error occurred while updating {permission.permission_type} permission."
+#         )
+#     except Exception:
+#         db.rollback()
+#         raise HTTPException(
+#             status_code=500, 
+#             detail=f"An unexpected error occurred while updating {permission.permission_type} permission."
+#         )
+
+
 
 
 

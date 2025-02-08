@@ -12,3 +12,4 @@ from .companies import router as companies_router
 from .underconstruction import router as underconstruction_router
 from .property_with_hierarchy import router as property_with_hierarchy_router
 from .logs import router as log_router
+from .client import router as client_router

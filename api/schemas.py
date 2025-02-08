@@ -64,7 +64,7 @@ class PropertyCreate(BaseModel):
     usp: Optional[str] = None  
 
 class PropertyUpdate(BaseModel):
-    project_name:Optional[str] = None
+    project_name: Optional[str] = None
     building: Optional[str] = None
     address2: Optional[str] = None
     city: Optional[str] = None
@@ -72,13 +72,13 @@ class PropertyUpdate(BaseModel):
     pin: Optional[str] = None
     company: Optional[str] = None
     status_code: Optional[str] = None
-    property_type: Optional[str] = None
+    property_type: Optional[str]
     c_status: Optional[str] = None
     lease_code: Optional[str] = None
     des_code: Optional[str] = None
-    area_id:Optional[int] = None
+    area_id: Optional[int] = None
     usp: Optional[str] = None
-    
+
     class Config:
         orm_mode = True
 
@@ -421,5 +421,17 @@ class CityUpdateSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+#################################### client #####################
+
+# Pydantic model for request and response
+class ClientCreate(BaseModel):
+    Name: str
+    Emial: str
+    Conatct_Number: str
+    Location: str
+
+    class Config:
+        from_attributes = True
 
    

@@ -12,3 +12,4 @@ from .propertyDetails import PropertyDetails
 from .propertyTypes import PropertyTypes
 from .sublocation import Sublocation
 from .underconstruction import Underconstruction
+from .client import Client

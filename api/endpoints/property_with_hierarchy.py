@@ -180,7 +180,8 @@ async def get_all_cities(db: Session = Depends(get_db), current_user: Ariyanspro
                         .filter(Property.area_id == area.area_id)
                         .options(
                             joinedload(Property.descriptions),  
-                            joinedload(Property.lease_sales)   
+                            joinedload(Property.lease_sales),
+                            joinedload(Property.property_types),   
                         )
                     )
 
@@ -214,7 +215,7 @@ async def get_all_cities(db: Session = Depends(get_db), current_user: Ariyanspro
                             "pin": property_obj.pin,
                             "company": property_obj.company,
                             "status_code": property_obj.status_code,
-                            "property_type": property_obj.property_type,
+                            "property_type": property_obj.property_types.category,
                             "c_status": property_obj.c_status,
                             "lease_type": property_obj.lease_sales.lease_type,
                             "usp": property_obj.usp,
