@@ -36,6 +36,9 @@ async def add_city(
     current_user: AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
+        if not current_user.can_add:
+            raise HTTPException(status_code=403, detail="You do not have permission to add property details.")
+        
         utc_now = pytz.utc.localize(datetime.utcnow())
         ist_now = utc_now.astimezone(pytz.timezone('Asia/Kolkata'))
 
@@ -84,13 +87,16 @@ async def add_city(
                     db.add(lease_sale)
                     db.flush()
 
-                    property_type = PropertyTypes(
-                        type_id=f"{property_data.property_type[:3].upper()}{db.query(PropertyTypes).count() + 1}",
-                        category=property_data.property_type,
-                        edit_date=ist_now
-                    )
-                    db.add(property_type)
-                    db.flush()
+                    # property_type = PropertyTypes(
+                    #     type_id=f"{property_data.property_type[:3].upper()}{db.query(PropertyTypes).count() + 1}",
+                    #     category=property_data.property_type,
+                    #     edit_date=ist_now
+                    # )
+                    # db.add(property_type)
+                    # db.flush()
+                    property_types_db=db.query(PropertyTypes).filter(PropertyTypes.type_id==property_data.type_id).first()
+                    if not property_types_db:
+                        raise HTTPException(status_code=404, detail="Property Types does not exist")
 
                     property_obj = Property(
                         property_code=property_code,
@@ -103,7 +109,7 @@ async def add_city(
                         pin=property_data.pin,
                         company=property_data.company,
                         status_code=property_data.status_code,
-                        property_type=property_type.type_id,
+                        property_type=property_data.type_id,
                         c_status=property_data.c_status,
                         lease_code=lease_sale.lease_id,
                         des_code=description.des_id,
@@ -120,6 +126,8 @@ async def add_city(
                             car_parking=detail_data.car_parking,
                             rate_buy=detail_data.rate_buy,
                             rate_lease=detail_data.rate_lease,
+                            builtup=detail_data.builtup,
+                            carpet=detail_data.carpet,
                             remarks=detail_data.remarks,
                             property_code=property_obj.property_code,
                             user_id=current_user.user_id,
@@ -153,7 +161,7 @@ async def add_city(
         raise http_exc
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=404, detail="A database error occurred while creating property hierarchy data.")
+        raise HTTPException(status_code=404, detail=f"A database error occurred while creating property hierarchy data.")
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="An unexpected error occurred while creating property hierarchy data") #f"An unexpected error occurred: {str(e)}"
@@ -161,7 +169,7 @@ async def add_city(
 
 
 @router.get("/get_all_property_hierarchy/", response_model=None)
-async def get_all_cities(db: Session = Depends(get_db), current_user: AriyanspropertiesUser = Depends(get_current_user)):
+async def get_all_cities(db: Session = Depends(get_db)):
     try:
         result = db.execute(select(City))
         cities = result.scalars().all()
@@ -197,6 +205,8 @@ async def get_all_cities(db: Session = Depends(get_db), current_user: Ariyanspro
                                 "rate_buy": detail.rate_buy,
                                 "rate_lease": detail.rate_lease,
                                 "remarks": detail.remarks,
+                                "builtup":detail.builtup,
+                                "carpet":detail.carpet,
                                 "contacts": [
                                     {"contact_person": contact.contact_person, 
                                      "email": contact.email, 
@@ -207,6 +217,7 @@ async def get_all_cities(db: Session = Depends(get_db), current_user: Ariyanspro
                             })
                         
                         property_list.append({
+                            "property_code":property_obj.property_code,
                             "project_name": property_obj.project_name,
                             "building": property_obj.building,
                             "address2": property_obj.address2,
@@ -237,14 +248,14 @@ async def get_all_cities(db: Session = Depends(get_db), current_user: Ariyanspro
                 "sublocations": sublocation_list
             })
         
-        log_action = Logs(
-                user_id=current_user.user_id,
-                action="Fetched all property hierarchy data",
-                property_id=property_obj.property_code,
-                timestamp=ist_now,
-            )
-        db.add(log_action)
-        db.commit()
+        # log_action = Logs(
+        #         user_id=current_user.user_id,
+        #         action="Fetched all property hierarchy data",
+        #         property_id=property_obj.property_code,
+        #         timestamp=ist_now,
+        #     )
+        # db.add(log_action)
+        # db.commit()
         return city_list
     except HTTPException as http_exc:
         raise http_exc
@@ -290,6 +301,8 @@ async def get_property_by_id(property_id: str, db: AsyncSession = Depends(get_db
                 "rate_buy": detail.rate_buy,
                 "rate_lease": detail.rate_lease,
                 "remarks": detail.remarks,
+                "builtup":detail.builtup,
+                "carpet":detail.carpet,
                 
             })
 
@@ -350,6 +363,9 @@ async def update_property_hierarchy(
     current_user: AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
+        if not current_user.can_edit:
+            raise HTTPException(status_code=403, detail="You do not have permission to Update property details.")
+        
         property_obj = db.query(Property).filter(Property.property_code == property_id).first()
 
         if not property_obj:
@@ -383,6 +399,10 @@ async def update_property_hierarchy(
                                     property_obj.status_code = property_data.status_code
                                 if property_data.property_type:
                                     property_obj.property_type = property_data.property_type
+                                    
+                                if property_data.type_id :
+                                    property_obj.property_type  = property_data.type_id 
+
                                 if property_data.lease_type:
                                     lease_sale = db.query(LeaseSale).filter(LeaseSale.lease_id == property_obj.lease_code).first()
                                     if lease_sale:
@@ -410,6 +430,10 @@ async def update_property_hierarchy(
                                             property_detail.rate_lease = detail_data.rate_lease
                                         if detail_data.remarks:
                                             property_detail.remarks = detail_data.remarks
+                                        if detail_data.builtup:
+                                            property_detail.builtup = detail_data.builtup
+                                        if detail_data.carpet:
+                                            property_detail.carpet = detail_data.carpet
 
                                         # Update contacts
                                         for contact_data in detail_data.contacts:
@@ -436,9 +460,9 @@ async def update_property_hierarchy(
         return {"message": "Property hierarchy updated successfully"}
     except HTTPException as http_exc:
         raise http_exc
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="A database error occurred while  updating property hierarchy data.")
+        raise HTTPException(status_code=500, detail=f"A database error occurred while  updating property hierarchy data.{e}")
 
     except Exception as e:
         db.rollback()
@@ -454,6 +478,9 @@ async def delete_property_hierarchy(
     current_user: AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
+        if not current_user.can_delete:
+            raise HTTPException(status_code=403, detail="You do not have permission to Delete property details.")
+        
         property_details = db.query(PropertyDetails).filter(PropertyDetails.property_code == property_id).first()
         if not property_details:
             raise HTTPException(status_code=404, detail="Property not found")

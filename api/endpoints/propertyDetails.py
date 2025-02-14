@@ -30,6 +30,8 @@ def create_property_detail(property_detail: PropertyDetailsCreate, db: Session =
             wing =property_detail.wing,
             car_parking =property_detail.car_parking, 
             remarks =property_detail.remarks,
+            builtup=property_detail.builtup,
+            carpet=property_detail.carpet,
             edit_date =ist_now, 
             user_id =current_user.user_id
             )

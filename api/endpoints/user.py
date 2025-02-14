@@ -154,12 +154,19 @@ def get_all_users(db: Session = Depends(get_db)):
                 "email": user.user_email,
                 "user_type": user.user_type,
                 "phone_no": user.phone_no,
+                "can_print_report":user.can_print_report,
+                "can_add":user.can_add,
+                "can_view": user.can_view,
+                "can_edit":user.can_edit,
+                "can_delete":user.can_delete,
             }
             for user in users
         ]
 
         return api_response(data=user_list, status_code=200)
-    except SQLAlchemyError:
+    except HTTPException as http_exc:
+        raise http_exc
+    except SQLAlchemyError as e:
         db.rollback()
         raise HTTPException(status_code=500, detail="A database error occurred while get all users.")
     except Exception:
@@ -212,7 +219,7 @@ async def update_can_add_permission(user_id: int, db: Session = Depends(get_db))
         if not user:
            raise HTTPException(status_code=404, detail="User not found.")
         
-        user.can_add = True
+        user.can_add = not user.can_add
         db.commit()
         db.refresh(user)
 
@@ -248,7 +255,7 @@ async def update_can_view_permission(user_id: int, db: Session = Depends(get_db)
         if not user:
            raise HTTPException(status_code=404, detail="User not found.")
         
-        user.can_view = True
+        user.can_view = not user.can_view
         db.commit()
         db.refresh(user)
 
@@ -283,7 +290,7 @@ async def update_can_edit_permission(user_id: int, db: Session = Depends(get_db)
         if not user:
            raise HTTPException(status_code=404, detail="User not found.")
         
-        user.can_edit = True
+        user.can_edit =not user.can_edit
         db.commit()
         db.refresh(user)
 
@@ -318,7 +325,7 @@ async def update_can_delete_permission(user_id: int, db: Session = Depends(get_d
         if not user:
            raise HTTPException(status_code=404, detail="User not found.")
         
-        user.can_delete = True
+        user.can_delete = not user.can_delete
         db.commit()
         db.refresh(user)
 
@@ -353,7 +360,7 @@ async def update_print_report_permission(user_id: int, db: Session = Depends(get
         if not user:
            raise HTTPException(status_code=404, detail="User not found.")
         
-        user.can_print_report = True
+        user.can_print_report = not user.can_print_report
         db.commit()
         db.refresh(user)
 

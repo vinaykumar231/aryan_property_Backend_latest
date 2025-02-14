@@ -93,6 +93,8 @@ class PropertyDetailsBase(BaseModel):
     wing: str
     car_parking: str
     remarks: str
+    builtup:float
+    carpet:float
 
 class PropertyDetailsCreate(PropertyDetailsBase):
     pass
@@ -345,6 +347,8 @@ class PropertyDetailSchema(BaseModel):
     car_parking: str
     rate_buy: float
     rate_lease: float
+    carpet: float  # Added carpet area field
+    builtup: float  # Added built-up area field
     remarks: str
     contacts: List[PropertyContactSchema]
 
@@ -357,6 +361,7 @@ class PropertySchema(BaseModel):
     pin: str
     company: str
     status_code: str
+    type_id:str
     property_type: str
     c_status: str
     lease_type: Optional[str]
@@ -391,6 +396,8 @@ class PropertyDetailUpdateSchema(BaseModel):
     rate_buy: Optional[float]
     rate_lease: Optional[float]
     remarks: Optional[str]
+    carpet: Optional[float]  # Added carpet area field
+    builtup: Optional[float]  # Added built-up area field
     contacts: Optional[List[PropertyContactUpdateSchema]]  
 
 class PropertyUpdateSchema(BaseModel):
@@ -402,6 +409,7 @@ class PropertyUpdateSchema(BaseModel):
     pin: Optional[str]
     company: Optional[str]
     status_code: Optional[str]
+    type_id:Optional[str]
     property_type: Optional[str]
     c_status: Optional[str]
     lease_type: Optional[str]
@@ -434,4 +442,40 @@ class ClientCreate(BaseModel):
     class Config:
         from_attributes = True
 
-   
+
+################################## FurnishedProperty ###########################
+
+class FurnishedPropertyCreate(BaseModel):
+    property_type_id: str
+    workstations: Optional[int] = 0
+    workstation_type_cubicle: Optional[bool] = False
+    workstation_type_linear: Optional[bool] = False
+    workstation_type_both: Optional[bool] = False
+    cabins: Optional[int] = 0
+    meeting_rooms: Optional[int] = 0
+    conference_rooms: Optional[int] = 0
+    cafeteria_seats: Optional[int] = 0
+    washrooms: Optional[int] = 0
+    pantry_area: Optional[bool] = False
+    backup_ups_room: Optional[bool] = False
+    server_electrical_room: Optional[bool] = False
+    reception_waiting_area: Optional[bool] = False
+
+class FurnishedPropertyUpdate(BaseModel):
+    workstations: Optional[int] = None
+    workstation_type_cubicle: Optional[bool] = None
+    workstation_type_linear: Optional[bool] = None
+    workstation_type_both: Optional[bool] = None
+    cabins: Optional[int] = None
+    meeting_rooms: Optional[int] = None
+    conference_rooms: Optional[int] = None
+    cafeteria_seats: Optional[int] = None
+    washrooms: Optional[int] = None
+    pantry_area: Optional[bool] = None
+    backup_ups_room: Optional[bool] = None
+    server_electrical_room: Optional[bool] = None
+    reception_waiting_area: Optional[bool] = None
+
+    class Config:
+        orm_mode = True
+

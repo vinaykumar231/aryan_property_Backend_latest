@@ -13,3 +13,4 @@ from .propertyTypes import PropertyTypes
 from .sublocation import Sublocation
 from .underconstruction import Underconstruction
 from .client import Client
+from .furnished_property import FurnishedProperty

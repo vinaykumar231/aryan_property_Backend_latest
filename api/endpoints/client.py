@@ -32,11 +32,26 @@ def create_client(client: ClientCreate, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="An unexpected error occurred while creating the client.")
 
 # GET API to retrieve all clients
-@router.get("/clients/", response_model=None)
+@router.get("/clients/")
 def get_clients(db: Session = Depends(get_db)):
-    clients = db.query(Client).all()
-    return clients
+    try:
+        clients = db.query(Client).all()
+        
+        if not clients:
+            raise HTTPException(status_code=404, detail="No clients found")
 
+        return clients
+    except HTTPException as http_exc:
+        raise http_exc
+    
+    except SQLAlchemyError as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="An unexpected error occurred")
+    
 # Update an existing client
 @router.put("/clients/{client_id}", response_model=None)
 def update_client(client_id: int, client: ClientCreate, db: Session = Depends(get_db)):

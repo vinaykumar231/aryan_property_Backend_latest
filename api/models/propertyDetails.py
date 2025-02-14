@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, Float, String, Integer, Boolean, DateTime, TIMESTAMP, BIGINT, Enum, ForeignKey, Text
+from sqlalchemy import DECIMAL, Column, Float, String, Integer, Boolean, DateTime, TIMESTAMP, BIGINT, Enum, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
@@ -17,6 +17,8 @@ class PropertyDetails(Base):
     unit_no = Column(String(50))
     wing = Column(String(50))
     car_parking = Column(String(50))
+    builtup = Column(DECIMAL(10, 2))  # Built-up area in square feet/meters
+    carpet = Column(DECIMAL(10, 2))   # Carpet area in square feet/meters
     remarks = Column(Text)
     edit_date = Column(DateTime, default=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.user_id"))

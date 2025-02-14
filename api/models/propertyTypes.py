@@ -2,6 +2,7 @@ from sqlalchemy import Column, Float, String, Integer, Boolean, DateTime, TIMEST
 from sqlalchemy.orm import relationship
 from database import Base
 from datetime import datetime
+#from furnished_property import FurnishedProperty
 
 # PropertyTypes Table:  1 ,Commercial,'2025-01-06 10:30:00'
 class PropertyTypes(Base):
@@ -11,4 +12,5 @@ class PropertyTypes(Base):
     edit_date = Column(DateTime, default=datetime.utcnow)
 
     property = relationship("Property", back_populates="property_types")
+    furnished_properties = relationship("FurnishedProperty", back_populates="property_type")
    
