@@ -39,7 +39,7 @@ class AriyanspropertiesUser(Base):
 
      # Relationships
     logs = relationship("Logs", back_populates="user")
-    property_details = relationship("PropertyDetails", back_populates="user")
+    #property_details = relationship("PropertyDetails", back_populates="user")
     logs = relationship("Logs", back_populates="user")
     property = relationship("Property", back_populates="user")
 

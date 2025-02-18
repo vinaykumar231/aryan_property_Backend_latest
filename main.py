@@ -4,9 +4,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from database import Base, engine
-from api.endpoints import (user_rouetr, propertyDetails_router, property_router, propertyTypes_router, leaseSale_router, description_router, propertyContacts_router,city_router,
-                           sublocation_router, area_router, companies_router, underconstruction_router, property_with_hierarchy_router, log_router,client_router,
-                           furnished_property_router)
+from api.endpoints import (user_rouetr,  property_router, propertyTypes_router, leaseSale_router, description_router, log_router,client_router,property_with_hierarchy_router,
+                           furnished_property_router, area_router)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
@@ -35,17 +34,17 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(user_rouetr, prefix="/api", tags=["User Routes"])
 app.include_router(property_with_hierarchy_router, prefix="/api", tags=["property with hierarchy Routes"])
 app.include_router(property_router, prefix="/api", tags=["Property Routes"])
-app.include_router(propertyDetails_router, prefix="/api", tags=["Property Details Routes"])
+#app.include_router(propertyDetails_router, prefix="/api", tags=["Property Details Routes"])
 app.include_router(propertyTypes_router, prefix="/api", tags=["Property Types Routes"])
 app.include_router(furnished_property_router, prefix="/api", tags=["furnished property Routes"])
 app.include_router(leaseSale_router, prefix="/api", tags=["Lease Sale Routes"])
 app.include_router(description_router, prefix="/api", tags=["Description Routes"])
-app.include_router(propertyContacts_router, prefix="/api", tags=["Property Contacts Routes"])
-app.include_router(city_router, prefix="/api", tags=["City Routes"])
-app.include_router(sublocation_router, prefix="/api", tags=["Sublocation Routes"])
+# app.include_router(propertyContacts_router, prefix="/api", tags=["Property Contacts Routes"])
+# app.include_router(city_router, prefix="/api", tags=["City Routes"])
+# app.include_router(sublocation_router, prefix="/api", tags=["Sublocation Routes"])
 app.include_router(area_router, prefix="/api", tags=["Area Routes"])
-app.include_router(companies_router, prefix="/api", tags=["Companies Routes"])
-app.include_router(underconstruction_router, prefix="/api", tags=["Underconstruction Routes"])
+#app.include_router(companies_router, prefix="/api", tags=["Companies Routes"])
+#app.include_router(underconstruction_router, prefix="/api", tags=["Underconstruction Routes"])
 app.include_router(client_router, prefix="/api", tags=["client Routes"])
 app.include_router(log_router, prefix="/api", tags=["Logs Routes"])
 

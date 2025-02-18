@@ -369,6 +369,7 @@ class PropertySchema(BaseModel):
     property_details: List[PropertyDetailSchema]
 
 class AreaSchema(BaseModel):
+    area_id:int
     area_name: str
     properties: List[PropertySchema]
 

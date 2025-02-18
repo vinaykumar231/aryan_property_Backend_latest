@@ -9,40 +9,36 @@ from sqlalchemy.orm import validates,Session
 from database import SessionLocal
 
 
-# Property Table  P123','Skyline Tower project', 'Skyline Tower', '2nd Avenue', 'New York', 'Manhattan', '10001', 'RealtyCorp', 'Available', 1, 'Active', L342, D124, 'Prime Location');
 class Property(Base):
     __tablename__ = "property"
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     property_code = Column(String(50), primary_key=True, index=True, unique=True,)
-    user_id = Column(Integer, ForeignKey("users.user_id"))
-    project_name = Column(String(255))  
-    building = Column(String(200))
-    address2 = Column(String(200))
+    user_id = Column(Integer, ForeignKey("users.user_id"))  
+    building_name = Column(String(200))
+    full_address = Column(String(200))
+    sublocation = Column(String(200))
+    location = Column(String(200))
     city = Column(String(100))
-    area = Column(String(100))
-    pin = Column(String(10))
-    company = Column(String(100))
-    status_code = Column(String(50))  # Active, Inactive, Sold, Under Contract, Under Review
-    property_type = Column(String(50), ForeignKey("property_types.type_id"))
-    c_status = Column(String(50))  # Occupied, lease , available, Under Maintenance
-    lease_code = Column(String(50), ForeignKey("lease_sale.lease_id"))
     des_code = Column(String(50), ForeignKey("descriptions.des_id"))
-    area_id=Column(Integer, ForeignKey("area.area_id"))
-    usp = Column(String(255))  #(unique sell point) Prime Location, near metro station
-    edit_date = Column(DateTime, default=datetime.utcnow)
+    LL_outright = Column(String(100))
+    property_type = Column(String(50), ForeignKey("property_types.type_id"))
+    poss_status = Column(String(50)) 
+    Reopen_date = Column(Integer, ForeignKey("reopan_tb1.id"))
+    east_west=  Column(String(50)) 
+    created_date = Column(DateTime, default=datetime.utcnow)
 
+ 
+   
     # Relationships
-    property_details = relationship("PropertyDetails", back_populates="property")
     descriptions = relationship("Description", back_populates="property")
     contacts = relationship("PropertyContacts", back_populates="property")
     user = relationship("AriyanspropertiesUser", back_populates="property")
     area = relationship("Area", back_populates="property")
-    lease_sales = relationship("LeaseSale", back_populates="property")
+    #lease_sales = relationship("LeaseSale", back_populates="property")
     property_types = relationship("PropertyTypes", back_populates="property")
     logs = relationship("Logs", back_populates="property")
-    underconstructions = relationship("Underconstruction", back_populates="property")
-    
+    reopen = relationship("Reopen", back_populates="properties")
     
 
     @validates('property_code')

@@ -8,10 +8,18 @@ from datetime import datetime
 class Area(Base):
     __tablename__ = "area"
     area_id = Column(Integer, primary_key=True, index=True)
-    sublocation_id = Column(Integer, ForeignKey("sublocation.sublocation_id"))
-    area_name = Column(String(100))  #Corporate Park, Business Hub, Office Towers, Tech Zone, Commercial Plaza. Central Business Center
-    edit_date = Column(DateTime, default=datetime.utcnow)
+    property_code = Column(String(50), ForeignKey("property.property_code"))
+    filter_area_id = Column(Integer, ForeignKey("filter_area.filter_area_id"))
+    built_up_area = Column(Float)
+    carpet_up_area = Column(Float)
+    efficiency = Column(Float)
+    car_parking = Column(String(100))
+    rental_psf = Column(String(100))
+    outright_rate_psf = Column(String(100))
+    floor_wing_unit_id = Column(Integer, ForeignKey("floor_wing_unit.floor_wing_unit_id"))
+    created_date = Column(DateTime, default=datetime.utcnow)
 
     # Relationships
-    sublocation = relationship("Sublocation", back_populates="areas")
     property = relationship("Property", back_populates="area")
+    filter_area = relationship("FilterArea", back_populates="area_list")
+    floor_wing_unit_number = relationship("Floor_wing_unit", back_populates="area")
