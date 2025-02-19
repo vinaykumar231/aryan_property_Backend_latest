@@ -48,20 +48,16 @@ class UpdateUser(BaseModel):
 ##########################################   Property   ####################################################
 
 class PropertyCreate(BaseModel):
-    project_name:Optional[str] = None
-    building: Optional[str] = None
-    address2: Optional[str] = None
-    city: Optional[str] = None
-    area: Optional[str] = None
-    pin: Optional[str] = None
-    company: Optional[str] = None
-    status_code: Optional[str] = None  
-    property_type: Optional[str] = None
-    c_status: Optional[str] = None  
-    lease_code: Optional[str] = None
-    des_code: Optional[str] = None
-    area_id:Optional[int] = None
-    usp: Optional[str] = None  
+    building_name: str
+    full_address: str
+    sublocation: str
+    city: str
+    des_code: str
+    LL_outright: str
+    property_type: str
+    poss_status: str
+    Reopen_date: Optional[str] = None
+    east_west: Optional[str] = None
 
 class PropertyUpdate(BaseModel):
     project_name: Optional[str] = None
@@ -288,145 +284,52 @@ class UnderconstructionResponse(BaseModel):
     class Config:
         orm_mode = True
 
-#########################   Hirarchy create := City → Sublocation → Area → Property → PropertyDetails → PropertyContacts. ################
-
-
-class PropertyContactSchema(BaseModel):
-    contact_person: str
-    email: str
-    mobile: str
-
-class PropertyDetailSchema(BaseModel):
-    floor: int
-    unit_no: str
-    wing: str
-    car_parking: str
-    rate_buy: float
-    rate_lease: float
-    remarks: str
-    contacts: List[PropertyContactSchema]
-
-class PropertySchema(BaseModel):
-    building: str
-    address: str
-    pin: str
-    company: str
-    status_code: str  # Active, Inactive, Sold, etc.
-    property_type: str  # Residential, Commercial, etc.
-    c_status: str  # Occupied, Lease, Available, etc.
-    usp: Optional[str] = None  # Unique Selling Point
-    property_details: List[PropertyDetailSchema]
-
-class AreaSchema(BaseModel):
-    area_name: str
-    properties: List[PropertySchema]
-
-class SublocationSchema(BaseModel):
-    sublocation_name: str
-    areas: List[AreaSchema]
-
-class CitySchema(BaseModel):
-    city_name: str
-    sublocations: List[SublocationSchema]
-
-    class Config:
-        orm_mode = True
 
 ############################################## property hierarchy data ###################################
 
+# Pydantic Models with corrected field names and validations
 class PropertyContactSchema(BaseModel):
-    contact_person: str
+    company_builder_name: str
+    address: str
+    conatact_person_1: Optional[str] = None  
+    conatact_person_2: Optional[str] = None  
+    conatact_person_number_1: Optional[int] = None  
+    conatact_person_number_2: Optional[int] = None  
     email: str
-    mobile: str
-    contact_person_address: Optional[str]
+    reffered_by: Optional[str] = None  
 
-class PropertyDetailSchema(BaseModel):
-    floor: int
-    unit_no: str
-    wing: str
-    car_parking: str
-    rate_buy: float
-    rate_lease: float
-    carpet: float  # Added carpet area field
-    builtup: float  # Added built-up area field
-    remarks: str
+class UnitFloorWingSchema(BaseModel):
+    wing: Optional[str] = None
+    floor: Optional[str] = None
+    unit_number: Optional[str] = None
+
+class AreaSchema(BaseModel):
+    filter_area_id: int
+    built_up_area: float
+    carpet_up_area: float
+    efficiency: Optional[float] = None
+    car_parking: Optional[str] = None
+    rental_psf: Optional[str] = None
+    outright_rate_psf: Optional[str] = None
+    unit_floor_wing: List[UnitFloorWingSchema]
     contacts: List[PropertyContactSchema]
 
 class PropertySchema(BaseModel):
-    project_name: str  # Added project_name field
-    building: str
-    address2: str
-    description: str
-    area: str
-    pin: str
-    company: str
-    status_code: str
-    type_id:str
+    building_name: str
+    full_address: str
+    sublocation: Optional[str] = None
+    #location: Optional[str] = None
+    city: str
+    des_code: str
+    LL_outright: str
     property_type: str
-    c_status: str
-    lease_type: Optional[str]
-    usp: Optional[str]
-    property_details: List[PropertyDetailSchema]
-
-class AreaSchema(BaseModel):
-    area_id:int
-    area_name: str
-    properties: List[PropertySchema]
-
-class SublocationSchema(BaseModel):
-    sublocation_name: str
+    poss_status: Optional[str] = None
+    east_west: Optional[str] = None
+    #availability: Optional[str] = None
+    #lease_out: Optional[str] = None
+    reopen_date: Optional[str] = None
+    #sold_out: Optional[str] = None
     areas: List[AreaSchema]
-
-class CitySchema(BaseModel):
-    city_name: str
-    sublocations: List[SublocationSchema]
-
-###########################################
-
-class PropertyContactUpdateSchema(BaseModel):
-    contact_person: Optional[str]
-    email: Optional[str]
-    mobile: Optional[str]
-    contact_person_address: Optional[str]
-
-class PropertyDetailUpdateSchema(BaseModel):
-    floor: Optional[int]
-    unit_no: Optional[str]
-    wing: Optional[str]
-    car_parking: Optional[str]
-    rate_buy: Optional[float]
-    rate_lease: Optional[float]
-    remarks: Optional[str]
-    carpet: Optional[float]  # Added carpet area field
-    builtup: Optional[float]  # Added built-up area field
-    contacts: Optional[List[PropertyContactUpdateSchema]]  
-
-class PropertyUpdateSchema(BaseModel):
-    project_name: Optional[str]
-    building: Optional[str]
-    address2: Optional[str]
-    description: Optional[str]
-    area: Optional[str]
-    pin: Optional[str]
-    company: Optional[str]
-    status_code: Optional[str]
-    type_id:Optional[str]
-    property_type: Optional[str]
-    c_status: Optional[str]
-    lease_type: Optional[str]
-    usp: Optional[str]
-    property_details: Optional[List[PropertyDetailUpdateSchema]]  
-class AreaUpdateSchema(BaseModel):
-    area_name: Optional[str]  
-    properties: Optional[List[PropertyUpdateSchema]]  
-
-class SublocationUpdateSchema(BaseModel):
-    sublocation_name: Optional[str] 
-    areas: Optional[List[AreaUpdateSchema]]  
-
-class CityUpdateSchema(BaseModel):
-    city_name: Optional[str]  
-    sublocations: Optional[List[SublocationUpdateSchema]]  
 
     class Config:
         orm_mode = True

@@ -14,6 +14,6 @@ class Reopen(Base):
     reopen_date = Column(String(100), nullable=True )
     sold_out=Column(String(100), nullable=True)
 
-    properties = relationship("Property", back_populates="reopen")
+    #properties = relationship("Property", back_populates="reopen")
     
    

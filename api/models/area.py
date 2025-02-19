@@ -16,7 +16,7 @@ class Area(Base):
     car_parking = Column(String(100))
     rental_psf = Column(String(100))
     outright_rate_psf = Column(String(100))
-    floor_wing_unit_id = Column(Integer, ForeignKey("floor_wing_unit.floor_wing_unit_id"))
+    #floor_wing_unit_id = Column(Integer, ForeignKey("floor_wing_unit.floor_wing_unit_id"))
     created_date = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

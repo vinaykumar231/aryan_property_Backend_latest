@@ -18,13 +18,13 @@ class Property(Base):
     building_name = Column(String(200))
     full_address = Column(String(200))
     sublocation = Column(String(200))
-    location = Column(String(200))
+    # location = Column(String(200))
     city = Column(String(100))
     des_code = Column(String(50), ForeignKey("descriptions.des_id"))
     LL_outright = Column(String(100))
     property_type = Column(String(50), ForeignKey("property_types.type_id"))
     poss_status = Column(String(50)) 
-    Reopen_date = Column(Integer, ForeignKey("reopan_tb1.id"))
+    Reopen_date = Column(String(100))
     east_west=  Column(String(50)) 
     created_date = Column(DateTime, default=datetime.utcnow)
 
@@ -38,7 +38,7 @@ class Property(Base):
     #lease_sales = relationship("LeaseSale", back_populates="property")
     property_types = relationship("PropertyTypes", back_populates="property")
     logs = relationship("Logs", back_populates="property")
-    reopen = relationship("Reopen", back_populates="properties")
+    #reopen = relationship("Reopen", back_populates="properties")
     
 
     @validates('property_code')

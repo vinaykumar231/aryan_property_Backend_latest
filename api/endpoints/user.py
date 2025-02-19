@@ -57,6 +57,10 @@ def AriyanspropertiesUser_register(data: UserCreate, db: Session = Depends(get_d
         utc_now = pytz.utc.localize(datetime.utcnow())
         ist_now = utc_now.astimezone(pytz.timezone('Asia/Kolkata'))
 
+        email_db=db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_email==data.user_email).first()
+        if email_db:
+            raise HTTPException(status_code=400, detail=f"Email {data.user_email} already exists")
+
         # hashed_password = bcrypt.hashpw(data.user_password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         usr = AriyanspropertiesUser(
@@ -93,27 +97,45 @@ def AriyanspropertiesUser_register(data: UserCreate, db: Session = Depends(get_d
         raise HTTPException(status_code=500, detail="An unexpected error occurred  while register.")
     
 @router.put("/update_user_type/", response_model=None, dependencies=[Depends(JWTBearer()), Depends(get_admin)])
-async def update_user_type(user_id: int, user_type: str, db: Session = Depends(get_db)):
+async def update_user(
+    user_id: int, 
+    user_type: str = None, 
+    new_password: str = None, 
+    phone_no: int = None, 
+    db: Session = Depends(get_db)
+):
     try:
         user_db = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
+        
         if not user_db:
             raise HTTPException(status_code=404, detail="User not found")
-        
-        user_db.user_type = user_type
+
+        if user_type is not None:
+            user_db.user_type = user_type
+
+        if new_password is not None:
+            user_db.user_password = new_password
+
+        if phone_no is not None:
+            user_db.phone_no = phone_no
+
         db.add(user_db)
         db.commit()
         db.refresh(user_db)
-        return {"message": "User type updated successfully"}
+
+        return {"message": "User details updated successfully"}
 
     except HTTPException as http_exc:
         raise http_exc
 
     except SQLAlchemyError:
         db.rollback()
-        raise HTTPException(status_code=500, detail="A database error occurred while update user type.")
+        raise HTTPException(status_code=500, detail="A database error occurred while updating user details.")
+    
     except Exception:
         db.rollback()
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while update user type.")
+        raise HTTPException(status_code=500, detail="An unexpected error occurred while updating user details.")
+
 
 @router.get("/get_my_profile")
 def get_current_user_details(current_user: AriyanspropertiesUser = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -152,6 +174,7 @@ def get_all_users(db: Session = Depends(get_db)):
                 "user_id": user.user_id,
                 "username": user.user_name,
                 "email": user.user_email,
+                "user_password":user.user_password,
                 "user_type": user.user_type,
                 "phone_no": user.phone_no,
                 "can_print_report":user.can_print_report,
@@ -352,7 +375,7 @@ async def update_can_delete_permission(user_id: int, db: Session = Depends(get_d
         db.rollback()
         raise HTTPException(status_code=500, detail="An unexpected error occurred whileupdating can delete permission.")
     
-@router.put("/permissions/print-report/{user_id}", response_model=None)
+@router.put("/permissions/can_print_report/{user_id}", response_model=None)
 async def update_print_report_permission(user_id: int, db: Session = Depends(get_db)):
     try:
         user = db.query(AriyanspropertiesUser).filter(AriyanspropertiesUser.user_id == user_id).first()
