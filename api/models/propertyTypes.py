@@ -12,5 +12,5 @@ class PropertyTypes(Base):
     edit_date = Column(DateTime, default=datetime.utcnow)
 
     property = relationship("Property", back_populates="property_types")
-    furnished_properties = relationship("FurnishedProperty", back_populates="property_type")
+    
    

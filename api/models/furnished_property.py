@@ -7,7 +7,8 @@ class FurnishedProperty(Base):
     __tablename__ = "furnished_properties__tb"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    property_type_id = Column(String(50), ForeignKey("property_types.type_id"))  
+    #property_code = Column(String(50), ForeignKey("property.property_code"))
+    des_code = Column(String(50), ForeignKey("descriptions.des_id")) 
     workstations = Column(Integer, default=0)
     workstation_type_cubicle = Column(Boolean, default=False)
     workstation_type_linear = Column(Boolean, default=False)
@@ -26,7 +27,9 @@ class FurnishedProperty(Base):
 
     edit_date = Column(DateTime, default=datetime.utcnow)
 
-    property_type = relationship("PropertyTypes", back_populates="furnished_properties")
+    description = relationship("Description", back_populates="furnished_properties")
+    #property = relationship("Property", back_populates="furnished_properties")
+    
 
 
     

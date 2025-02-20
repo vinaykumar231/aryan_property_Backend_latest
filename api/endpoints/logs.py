@@ -12,24 +12,24 @@ def format_date(date):
     return date.strftime('%d-%m-%y %H:%M:%S') if date else None
 
 
-@router.get("/get_all_logs", response_model=list)  # You can define a proper response model later
+@router.get("/get_all_logs", response_model=list)  # Define a proper response model later
 async def get_all_logs(db: Session = Depends(get_db)):
     try:
         logs = db.query(Logs).options(joinedload(Logs.user)).all()  # Fetch all logs from the database
         
         if not logs:
             raise HTTPException(status_code=404, detail="No logs found.")
-        
-        # Return the logs as a list of dictionaries
+
+        # Process logs while handling possible NULL user references
         log_list = []
         for log in logs:
             log_list.append({
                 "log_id": log.log_id,
-                #"user_id": log.user_id,
-                "user_name": log.user.user_name,
-                #"property_id": log.property_id,
+                #"user_id": log.user.user_id if log.user else None,  # Handle NoneType safely
+                "user_name": log.user.user_name if log.user else "Unknown",  # Provide fallback
+                #"property_id": log.property_id,  # Uncomment if needed
                 "action": log.action,
-                "timestamp": format_date(log.timestamp)
+                "timestamp": format_date(log.timestamp) if log.timestamp else None
             })
 
         return log_list
@@ -39,7 +39,7 @@ async def get_all_logs(db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail="A database error occurred while fetching logs.")
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while fetching logs.")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while fetching logs: {str(e)}")
     
 @router.delete("/delete_log/{log_id}", response_model=None)
 async def delete_log(log_id: int, db: Session = Depends(get_db)):

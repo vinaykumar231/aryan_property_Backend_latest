@@ -15,9 +15,12 @@ def create_description(
     db: Session = Depends(get_db)
 ):
     try:
-        
-        count = db.query(Description).count() + 1
-        des_id = f"D{count:03}"
+        last_entry = db.query(Description).order_by(Description.des_id.desc()).first()
+        if last_entry and last_entry.des_id.startswith("D"):
+            last_id = int(last_entry.des_id[1:])  # Extract numeric part
+            des_id = f"D{last_id + 1:03}"  # Increment by 1
+        else:
+            des_id = "D001"  # First entry case
         db_description = Description(
             des_id=des_id,
             description=description.description,
@@ -30,10 +33,10 @@ def create_description(
         raise http_exc
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=404, detail="A database error occurred while adding description.")
+        raise HTTPException(status_code=404, detail=f"A database error occurred while adding description.")
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while adding description.")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while adding description.")
 
 @router.get("/description/{des_id}", response_model=None)
 def get_description(

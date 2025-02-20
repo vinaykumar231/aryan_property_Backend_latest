@@ -350,7 +350,8 @@ class ClientCreate(BaseModel):
 ################################## FurnishedProperty ###########################
 
 class FurnishedPropertyCreate(BaseModel):
-    property_type_id: str
+    #property_code:str
+    des_code: str
     workstations: Optional[int] = 0
     workstation_type_cubicle: Optional[bool] = False
     workstation_type_linear: Optional[bool] = False
@@ -366,6 +367,8 @@ class FurnishedPropertyCreate(BaseModel):
     reception_waiting_area: Optional[bool] = False
 
 class FurnishedPropertyUpdate(BaseModel):
+    #property_code:Optional[str]=None
+    des_code: Optional[str]=None
     workstations: Optional[int] = None
     workstation_type_cubicle: Optional[bool] = None
     workstation_type_linear: Optional[bool] = None

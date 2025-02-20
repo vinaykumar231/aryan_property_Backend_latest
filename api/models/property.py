@@ -39,6 +39,7 @@ class Property(Base):
     property_types = relationship("PropertyTypes", back_populates="property")
     logs = relationship("Logs", back_populates="property")
     #reopen = relationship("Reopen", back_populates="properties")
+    #furnished_properties = relationship("FurnishedProperty", back_populates="property")
     
 
     @validates('property_code')

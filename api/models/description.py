@@ -12,4 +12,5 @@ class Description(Base):
 
     
     property = relationship("Property", back_populates="descriptions")
+    furnished_properties = relationship("FurnishedProperty", back_populates="description")
     

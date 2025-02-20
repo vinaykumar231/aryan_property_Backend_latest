@@ -150,7 +150,7 @@ async def add_property_with_hierarchy(
 
         log_action = Logs(
             user_id=current_user.user_id,
-            action="property added",
+            action="property data added",
             property_id=property_obj.property_code,
             timestamp=ist_now
         )
@@ -500,7 +500,7 @@ async def update_property(
 
         log_action = Logs(
             user_id=current_user.user_id,
-            action="property updated",
+            action="property data updated",
             property_id=property_obj.property_code,
             timestamp=ist_now
         )
@@ -555,7 +555,7 @@ async def delete_property(
 
         log_action = Logs(
             user_id=current_user.user_id,
-            action="property deleted",
+            action="property data deleted",
             property_id=property_obj.property_code,
             timestamp=ist_now
         )

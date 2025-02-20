@@ -101,7 +101,7 @@ async def update_user(
     user_id: int, 
     user_type: str = None, 
     new_password: str = None, 
-    phone_no: int = None, 
+    phone_no: str = None, 
     db: Session = Depends(get_db)
 ):
     try:
@@ -109,6 +109,12 @@ async def update_user(
         
         if not user_db:
             raise HTTPException(status_code=404, detail="User not found")
+        
+        if not AriyanspropertiesUser.validate_phone_number(phone_no):
+            raise HTTPException(status_code=400, detail="phone number must be 10 digit")
+        
+        if not AriyanspropertiesUser.validate_password(new_password):
+            raise HTTPException(status_code=400, detail="Password must be at least 8 characters long")
 
         if user_type is not None:
             user_db.user_type = user_type
@@ -132,9 +138,9 @@ async def update_user(
         db.rollback()
         raise HTTPException(status_code=500, detail="A database error occurred while updating user details.")
     
-    except Exception:
+    except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="An unexpected error occurred while updating user details.")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while updating user details.{e}")
 
 
 @router.get("/get_my_profile")
