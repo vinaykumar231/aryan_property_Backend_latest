@@ -14,6 +14,7 @@ class Property(Base):
     
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     property_code = Column(String(50), primary_key=True, index=True, unique=True,)
+    #furnished_property_id = Column(String(50), ForeignKey("furnished_properties__tb.id"), nullable=True)
     user_id = Column(Integer, ForeignKey("users.user_id"))  
     building_name = Column(String(200))
     full_address = Column(String(200))
@@ -37,7 +38,7 @@ class Property(Base):
     area = relationship("Area", back_populates="property")
     #lease_sales = relationship("LeaseSale", back_populates="property")
     property_types = relationship("PropertyTypes", back_populates="property")
-    logs = relationship("Logs", back_populates="property")
+    logs = relationship("Logs", back_populates="property",  cascade="all, delete-orphan")
     #reopen = relationship("Reopen", back_populates="properties")
     #furnished_properties = relationship("FurnishedProperty", back_populates="property")
     

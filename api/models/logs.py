@@ -8,7 +8,7 @@ class Logs(Base):
     __tablename__ = "logs"
     log_id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.user_id"))
-    property_id = Column(String(50), ForeignKey("property.property_code"))
+    property_id = Column(String(50), ForeignKey("property.property_code", ondelete="CASCADE"))
     action = Column(String(100))
     timestamp = Column(DateTime, default=datetime.utcnow)
 

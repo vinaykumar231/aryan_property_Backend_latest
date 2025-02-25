@@ -21,7 +21,7 @@ def create_furnished_property(
         ).first()
         
         if not property_type_db:
-            raise HTTPException(status_code=400, detail="Property type does not exist.")
+            raise HTTPException(status_code=400, detail="Description type does not exist.")
         
         furnished_property_obj = FurnishedProperty(
             #property_code=furnished_property.property_code,

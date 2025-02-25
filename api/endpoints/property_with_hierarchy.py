@@ -171,7 +171,7 @@ async def add_property_with_hierarchy(
     
 
 
-@router.get("/get_all_properties/")
+@router.get("/get_all_properties/v3")
 async def get_all_properties(
     db: Session = Depends(get_db),
     current_user: AriyanspropertiesUser = Depends(get_current_user)
@@ -275,7 +275,7 @@ async def get_all_properties(
 
     
 
-@router.get("/get_all_properties_by_area/")
+@router.get("/get_all_properties/")
 async def get_all_properties_by_area(
     db: Session = Depends(get_db),
     current_user: AriyanspropertiesUser = Depends(get_current_user),
