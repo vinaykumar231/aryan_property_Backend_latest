@@ -315,6 +315,7 @@ class AreaSchema(BaseModel):
     contacts: List[PropertyContactSchema]
 
 class PropertySchema(BaseModel):
+    furnished_property_id:Optional[int] = None
     building_name: str
     full_address: str
     sublocation: Optional[str] = None

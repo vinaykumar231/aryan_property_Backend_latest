@@ -28,7 +28,7 @@ class FurnishedProperty(Base):
     edit_date = Column(DateTime, default=datetime.utcnow)
 
     description = relationship("Description", back_populates="furnished_properties")
-    #property = relationship("Property", back_populates="furnished_properties")
+    property = relationship("Property", back_populates="furnished_properties")
     
 
 

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.exc import SQLAlchemyError
 from api.models.description import Description
 from database import get_db
@@ -59,47 +59,95 @@ def create_furnished_property(
 @router.get("/furnished_properties/")
 def get_furnished_properties(db: Session = Depends(get_db)):
     try:
-        properties = db.query(FurnishedProperty).all()
-        return properties
-    except HTTPException as http_exc:
-        raise http_exc
-    except SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"A database error occurred while fetch furnished property data.")
-    except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred.")
+        all_data = []
+        properties = db.query(FurnishedProperty) \
+            .options(joinedload(FurnishedProperty.description), joinedload(FurnishedProperty.property)) \
+            .all()
 
+        for r in properties:
+            data = {
+                "id": r.id,
+                "property_code": r.property_code,
+                "conference_rooms": r.conference_rooms,
+                "des_code": r.des_code,
+                "description": r.description.description if r.description else None,
+                "cafeteria_seats": r.cafeteria_seats,
+                "workstations": r.workstations,
+                "washrooms": r.washrooms,
+                "workstation_type_cubicle": r.workstation_type_cubicle,
+                "pantry_area": r.pantry_area,
+                "workstation_type_linear": r.workstation_type_linear,
+                "backup_ups_room": r.backup_ups_room,
+                "workstation_type_both": r.workstation_type_both,
+                "server_electrical_room": r.server_electrical_room,
+                "cabins": r.cabins,
+                "reception_waiting_area": r.reception_waiting_area,
+                "meeting_rooms": r.meeting_rooms,
+                "edit_date": r.edit_date,
+            }
+            all_data.append(data)
+
+        return all_data
+
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="A database error occurred while fetching furnished property data.")
+
+    except Exception:
+        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
 @router.get("/furnished_properties/{property_id}")
-def get_furnished_property(property_id: int, db: Session = Depends(get_db)):
-    property_obj = db.query(FurnishedProperty).filter(FurnishedProperty.id == property_id).first()
+def get_furnished_property(property_code: str, db: Session = Depends(get_db)):
     try:
+        property_obj = (
+            db.query(FurnishedProperty)
+            .options(joinedload(FurnishedProperty.description), joinedload(FurnishedProperty.property))
+            .filter(FurnishedProperty.property_code == property_code)
+            .first()
+        )
+
         if not property_obj:
             raise HTTPException(status_code=404, detail="Furnished property not found.")
-        return property_obj
-    except HTTPException as http_exc:
-        raise http_exc
-    except SQLAlchemyError as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"A database error occurred while fetch furnished property data.")
+
+        data = {
+            "id": property_obj.id,
+            "property_code": property_obj.property_code,
+            "conference_rooms": property_obj.conference_rooms,
+            #"des_code": property_obj.des_code,
+            "description": property_obj.description.description if property_obj.description else None,
+            "cafeteria_seats": property_obj.cafeteria_seats,
+            "workstations": property_obj.workstations,
+            "washrooms": property_obj.washrooms,
+            "workstation_type_cubicle": property_obj.workstation_type_cubicle,
+            "pantry_area": property_obj.pantry_area,
+            "workstation_type_linear": property_obj.workstation_type_linear,
+            "backup_ups_room": property_obj.backup_ups_room,
+            "workstation_type_both": property_obj.workstation_type_both,
+            "server_electrical_room": property_obj.server_electrical_room,
+            "cabins": property_obj.cabins,
+            "reception_waiting_area": property_obj.reception_waiting_area,
+            "meeting_rooms": property_obj.meeting_rooms,
+            "edit_date": property_obj.edit_date,
+        }
+
+        return data
+
+    except SQLAlchemyError:
+        raise HTTPException(status_code=500, detail="A database error occurred while fetching furnished property data.")
+
     except Exception as e:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred.")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred.{e}")
 
 @router.put("/furnished_properties/{property_id}")
 def update_furnished_property(
     property_id: int,
-    furnished_property: FurnishedPropertyUpdate,  # Schema with optional fields
+    furnished_property: FurnishedPropertyUpdate,  
     db: Session = Depends(get_db)
 ):
     try:
-        # Fetch existing property
         existing_property = db.query(FurnishedProperty).filter(FurnishedProperty.id == property_id).first()
         
         if not existing_property:
             raise HTTPException(status_code=404, detail="Furnished property not found.")
 
-        # Update each field explicitly if it's provided in the request
         if furnished_property.des_code:
             existing_property.des_code = furnished_property.des_code
         if furnished_property.workstations is not None:

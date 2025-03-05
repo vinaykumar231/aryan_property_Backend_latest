@@ -17,10 +17,10 @@ def create_description(
     try:
         last_entry = db.query(Description).order_by(Description.des_id.desc()).first()
         if last_entry and last_entry.des_id.startswith("D"):
-            last_id = int(last_entry.des_id[1:])  # Extract numeric part
-            des_id = f"D{last_id + 1:03}"  # Increment by 1
+            last_id = int(last_entry.des_id[1:])  
+            des_id = f"D{last_id + 1:03}"  
         else:
-            des_id = "D001"  # First entry case
+            des_id = "D001"  
         db_description = Description(
             des_id=des_id,
             description=description.description,

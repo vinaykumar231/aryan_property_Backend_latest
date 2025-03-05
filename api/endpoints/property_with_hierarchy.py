@@ -75,6 +75,7 @@ async def add_property_with_hierarchy(
 
         property_obj = Property(
             property_code=property_code,
+            furnished_property_id=property_data.furnished_property_id,
             user_id=current_user.user_id,
             building_name=property_data.building_name,
             full_address=property_data.full_address,
@@ -164,9 +165,11 @@ async def add_property_with_hierarchy(
         raise http_exc
     except SQLAlchemyError as e:
         db.rollback()
+        print(e)
         raise HTTPException(status_code=404, detail=f"A database error occurred while add property data.{e}")
     except Exception as e:
         db.rollback()
+        print(e)
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred while add property data{e}")
     
 
@@ -190,7 +193,8 @@ async def get_all_properties(
             joinedload(Property.contacts),  
             #joinedload(Property.reopen),
             joinedload(Property.area).joinedload(Area.filter_area),  
-            joinedload(Property.area).joinedload(Area.floor_wing_unit_number)  
+            joinedload(Property.area).joinedload(Area.floor_wing_unit_number),
+            joinedload(Property.furnished_properties)  
         ).all()
 
         if not properties:
@@ -234,6 +238,26 @@ async def get_all_properties(
                 for contact in property_obj.contacts  
             ]
 
+            # Extracting furnished property details
+            furnished_property_data = None
+            if property_obj.furnished_properties:
+                furnished_property_data = {
+                    "workstations": property_obj.furnished_properties.workstations,
+                    "workstation_type_cubicle": property_obj.furnished_properties.workstation_type_cubicle,
+                    "workstation_type_linear": property_obj.furnished_properties.workstation_type_linear,
+                    "workstation_type_both": property_obj.furnished_properties.workstation_type_both,
+                    "cabins": property_obj.furnished_properties.cabins,
+                    "meeting_rooms": property_obj.furnished_properties.meeting_rooms,
+                    "conference_rooms": property_obj.furnished_properties.conference_rooms,
+                    "cafeteria_seats": property_obj.furnished_properties.cafeteria_seats,
+                    "washrooms": property_obj.furnished_properties.washrooms,
+                    "pantry_area": property_obj.furnished_properties.pantry_area,
+                    "backup_ups_room": property_obj.furnished_properties.backup_ups_room,
+                    "server_electrical_room": property_obj.furnished_properties.server_electrical_room,
+                    "reception_waiting_area": property_obj.furnished_properties.reception_waiting_area,
+                    "edit_date": property_obj.furnished_properties.edit_date
+                }
+
             description_text = property_obj.descriptions.description if property_obj.descriptions else None
             property_text = property_obj.property_types.category if property_obj.property_types else None
 
@@ -259,6 +283,7 @@ async def get_all_properties(
                 "reopen_data": property_obj.Reopen_date,
                 "areas": area_list,
                 "contacts": contact_list,
+                "furnished_details": furnished_property_data
                 
             })
 
@@ -300,7 +325,8 @@ async def get_all_properties_by_area(
             joinedload(Property.property_types),
             joinedload(Property.contacts),
             joinedload(Property.area).joinedload(Area.filter_area),
-            joinedload(Property.area).joinedload(Area.floor_wing_unit_number)
+            joinedload(Property.area).joinedload(Area.floor_wing_unit_number),
+            joinedload(Property.furnished_properties)
         ).all()
 
         if not properties:
@@ -342,6 +368,25 @@ async def get_all_properties_by_area(
                 }
                 for contact in property_obj.contacts  
             ]
+            # Extracting furnished property details
+            furnished_property_data = None
+            if property_obj.furnished_properties:
+                furnished_property_data = {
+                    "workstations": property_obj.furnished_properties.workstations,
+                    "workstation_type_cubicle": property_obj.furnished_properties.workstation_type_cubicle,
+                    "workstation_type_linear": property_obj.furnished_properties.workstation_type_linear,
+                    "workstation_type_both": property_obj.furnished_properties.workstation_type_both,
+                    "cabins": property_obj.furnished_properties.cabins,
+                    "meeting_rooms": property_obj.furnished_properties.meeting_rooms,
+                    "conference_rooms": property_obj.furnished_properties.conference_rooms,
+                    "cafeteria_seats": property_obj.furnished_properties.cafeteria_seats,
+                    "washrooms": property_obj.furnished_properties.washrooms,
+                    "pantry_area": property_obj.furnished_properties.pantry_area,
+                    "backup_ups_room": property_obj.furnished_properties.backup_ups_room,
+                    "server_electrical_room": property_obj.furnished_properties.server_electrical_room,
+                    "reception_waiting_area": property_obj.furnished_properties.reception_waiting_area,
+                    "edit_date": property_obj.furnished_properties.edit_date
+                }
 
             description_text = property_obj.descriptions.description if property_obj.descriptions else None
             property_text = property_obj.property_types.category if property_obj.property_types else None
@@ -360,6 +405,7 @@ async def get_all_properties_by_area(
                 "reopen_data": property_obj.Reopen_date,
                 "areas": area_list,
                 "contacts": contact_list,
+                "furnished_details": furnished_property_data
             })
 
         return property_list
@@ -373,151 +419,113 @@ async def get_all_properties_by_area(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred while retrieving property data.")
     
-@router.put("/update_property/{property_code}", response_model=dict)
-async def update_property(
+@router.put("/update_property/{property_code}", response_model=None)
+async def update_property_with_hierarchy(
     property_code: str,
     property_data: PropertySchema,
     db: Session = Depends(get_db),
     current_user: AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
+        if not current_user.can_edit:
+            raise HTTPException(status_code=403, detail="You do not have permission to update property.")
         
         property_obj = db.query(Property).filter(Property.property_code == property_code).first()
-        reopen_obj = db.query(Reopen).filter(Reopen.id == property_obj.Reopen_date).first()
-
         if not property_obj:
             raise HTTPException(status_code=404, detail="Property not found.")
-
-        if property_data.building_name:
-            property_obj.building_name = property_data.building_name
-
-        if property_data.full_address:
-            property_obj.full_address = property_data.full_address
-
-        if property_data.sublocation:
-            property_obj.sublocation = property_data.sublocation
-
-        # if property_data.location:
-        #     property_obj.location = property_data.location
-
-        if property_data.city:
-            property_obj.city = property_data.city
-
-        if property_data.des_code:
-            property_obj.des_code = property_data.des_code
-
-        if property_data.LL_outright:
-            property_obj.LL_outright = property_data.LL_outright
-
-        if property_data.property_type:
-            property_obj.property_type = property_data.property_type
-
-        if property_data.poss_status:
-            property_obj.poss_status = property_data.poss_status
-
-        if property_data.east_west:
-            property_obj.east_west = property_data.east_west
         
-        if property_data.reopen_date:
-            property_obj.Reopen_date = property_data.reopen_date
+        PropertyTypes_db=db.query(PropertyTypes).filter(PropertyTypes.type_id==property_data.property_type).first()
+        if not PropertyTypes_db:
+            raise HTTPException(status_code=404, detail="Property type not found")
+        
+        description_db=db.query(Description).filter(Description.des_id==property_data.des_code).first()
+        if not description_db:
+            raise HTTPException(status_code=404, detail="Description not found")
 
-        # if property_data.availability:
-        #     reopen_obj.availability = property_data.availability
+        property_obj.furnished_property_id = property_data.furnished_property_id
+        property_obj.building_name = property_data.building_name
+        property_obj.full_address = property_data.full_address
+        property_obj.sublocation = property_data.sublocation
+        property_obj.city = property_data.city
+        property_obj.des_code = property_data.des_code
+        property_obj.LL_outright = property_data.LL_outright
+        property_obj.property_type = property_data.property_type
+        property_obj.poss_status = property_data.poss_status
+        property_obj.Reopen_date = property_data.reopen_date
+        property_obj.east_west = property_data.east_west
 
-        # if property_data.lease_out:
-        #     reopen_obj.lease_out = property_data.lease_out
-
-        # if property_data.reopen_date:
-        #     reopen_obj.reopen_date = property_data.reopen_date
-
-        # if property_data.sold_out:
-        #     reopen_obj.sold_out = property_data.sold_out
-
-        for area_data in property_data.areas:
-            existing_area = db.query(Area).options(joinedload(Area.floor_wing_unit_number)).filter(
-                Area.property_code == property_obj.property_code,
-                Area.filter_area_id == area_data.filter_area_id
-            ).first()
-
-            if existing_area:
-                if area_data.built_up_area:
-                    existing_area.built_up_area = area_data.built_up_area
-
-                if area_data.carpet_up_area:
-                    existing_area.carpet_up_area = area_data.carpet_up_area
-
-                if area_data.efficiency:
-                    existing_area.efficiency = area_data.efficiency
-
-                if area_data.car_parking:
-                    existing_area.car_parking = area_data.car_parking
-
-                if area_data.rental_psf:
-                    existing_area.rental_psf = area_data.rental_psf
-
-                if area_data.outright_rate_psf:
-                    existing_area.outright_rate_psf = area_data.outright_rate_psf
-
-                for unit_data in area_data.unit_floor_wing:
-                    if unit_data.wing:
-                        existing_area.floor_wing_unit_number.wing = unit_data.wing
-
-                    if unit_data.floor:
-                        existing_area.floor_wing_unit_number.floor = unit_data.floor
-
-                    if unit_data.unit_number:
-                        existing_area.floor_wing_unit_number.unit_number = unit_data.unit_number
-
+        db.flush()
 
         for area_data in property_data.areas:
+            area = db.query(Area).filter(Area.property_code == property_code).first()
+
+            db_filter_name=db.query(FilterArea).filter(FilterArea.filter_area_id==area_data.filter_area_id).first()
+
+            if not db_filter_name:
+                raise HTTPException(status_code=404, detail="Location not found")
+            
+            if area:
+                area.filter_area_id=db_filter_name.filter_area_id
+                area.built_up_area = area_data.built_up_area
+                area.carpet_up_area = area_data.carpet_up_area
+                area.efficiency = area_data.efficiency
+                area.car_parking = area_data.car_parking
+                area.rental_psf = area_data.rental_psf
+                area.outright_rate_psf = area_data.outright_rate_psf
+            else:
+                area = Area(
+                    property_code=property_code,
+                    filter_area_id=area_data.filter_area_id,
+                    built_up_area=area_data.built_up_area,
+                    carpet_up_area=area_data.carpet_up_area,
+                    efficiency=area_data.efficiency,
+                    car_parking=area_data.car_parking,
+                    rental_psf=area_data.rental_psf,
+                    outright_rate_psf=area_data.outright_rate_psf
+                )
+                db.add(area)
+            db.flush()
+
+            db.query(Floor_wing_unit).filter(Floor_wing_unit.area_id == area.area_id).delete()
+            for wing_data in area_data.unit_floor_wing:
+                wing_floor_unit_db = Floor_wing_unit(
+                    area_id=area.area_id,
+                    wing=wing_data.wing,
+                    floor=wing_data.floor,
+                    unit_number=wing_data.unit_number
+                )
+                db.add(wing_floor_unit_db)
+            db.flush()
+
+            db.query(PropertyContacts).filter(PropertyContacts.property_code == property_code).delete()
             for contact_data in area_data.contacts:
-                existing_contact = db.query(PropertyContacts).filter(
-                    PropertyContacts.property_code == property_obj.property_code,
-                    PropertyContacts.company_builder_name == contact_data.company_builder_name
-                ).first()
-
-                if existing_contact:
-                    if contact_data.address:
-                        existing_contact.address = contact_data.address
-
-                    if contact_data.conatact_person_1:
-                        existing_contact.conatact_person_1 = contact_data.conatact_person_1
-
-                    if contact_data.conatact_person_2:
-                        existing_contact.conatact_person_2 = contact_data.conatact_person_2
-
-                    if contact_data.conatact_person_number_1 :
-                        existing_contact.conatact_person_number_1 = contact_data.conatact_person_number_1
-
-                    if contact_data.conatact_person_number_2:
-                        existing_contact.conatact_person_number_2 = contact_data.conatact_person_number_2
-
-                    if contact_data.email:
-                        existing_contact.email = contact_data.email
-
-                    if contact_data.reffered_by:
-                        existing_contact.reffered_by = contact_data.reffered_by
-
-        log_action = Logs(
-            user_id=current_user.user_id,
-            action="property data updated",
-            property_id=property_obj.property_code,
-            timestamp=ist_now
-        )
-        db.add(log_action)
+                contact = PropertyContacts(
+                    property_code=property_code,
+                    company_builder_name=contact_data.company_builder_name,
+                    address=contact_data.address,
+                    conatact_person_1=contact_data.conatact_person_1,
+                    conatact_person_2=contact_data.conatact_person_2,
+                    conatact_person_number_1=contact_data.conatact_person_number_1,
+                    conatact_person_number_2=contact_data.conatact_person_number_2,
+                    email=contact_data.email,
+                    reffered_by=contact_data.reffered_by
+                )
+                db.add(contact)
+            db.flush()
 
         db.commit()
 
-        return {"message": "Property updated successfully"}
-
+        return {"message": "Property with hierarchy updated successfully"}
+    
     except HTTPException as http_exc:
         raise http_exc
     except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"A database error occurred while updating the property.{e}")
+        raise HTTPException(status_code=500, detail=f"A database error occurred while Updating the property.")
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while updating the property.{e}")
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred while Updating the property.")
+
 
 
 @router.delete("/delete_property/{property_code}", response_model=dict)
