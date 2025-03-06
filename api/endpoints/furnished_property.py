@@ -94,13 +94,13 @@ def get_furnished_properties(db: Session = Depends(get_db)):
 
     except Exception:
         raise HTTPException(status_code=500, detail="An unexpected error occurred.")
-@router.get("/furnished_properties/{property_id}")
-def get_furnished_property(property_code: str, db: Session = Depends(get_db)):
+@router.get("/furnished_properties/{Furnished_d}")
+def get_furnished_property(Furnished_d: int, db: Session = Depends(get_db)):
     try:
         property_obj = (
             db.query(FurnishedProperty)
             .options(joinedload(FurnishedProperty.description), joinedload(FurnishedProperty.property))
-            .filter(FurnishedProperty.property_code == property_code)
+            .filter(FurnishedProperty.id == Furnished_d)
             .first()
         )
 
@@ -136,14 +136,14 @@ def get_furnished_property(property_code: str, db: Session = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred.{e}")
 
-@router.put("/furnished_properties/{property_id}")
+@router.put("/furnished_properties/{Furnished_d}")
 def update_furnished_property(
-    property_id: int,
+    Furnished_d: int,
     furnished_property: FurnishedPropertyUpdate,  
     db: Session = Depends(get_db)
 ):
     try:
-        existing_property = db.query(FurnishedProperty).filter(FurnishedProperty.id == property_id).first()
+        existing_property = db.query(FurnishedProperty).filter(FurnishedProperty.id == Furnished_d).first()
         
         if not existing_property:
             raise HTTPException(status_code=404, detail="Furnished property not found.")
@@ -182,9 +182,9 @@ def update_furnished_property(
     
     except HTTPException as http_exc:
         raise http_exc
-    except SQLAlchemyError:
+    except SQLAlchemyError as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail="A database error occurred while updating furnished property data.")
+        raise HTTPException(status_code=500, detail=f"A database error occurred while updating furnished property data.{e}")
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"An unexpected error occurred. {e}")
