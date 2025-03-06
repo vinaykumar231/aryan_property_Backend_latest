@@ -67,7 +67,7 @@ def get_furnished_properties(db: Session = Depends(get_db)):
         for r in properties:
             data = {
                 "id": r.id,
-                "property_code": r.property_code,
+                #"property_code": r.property_code,
                 "conference_rooms": r.conference_rooms,
                 "des_code": r.des_code,
                 "description": r.description.description if r.description else None,
@@ -109,7 +109,7 @@ def get_furnished_property(property_code: str, db: Session = Depends(get_db)):
 
         data = {
             "id": property_obj.id,
-            "property_code": property_obj.property_code,
+            #"property_code": property_obj.property_code,
             "conference_rooms": property_obj.conference_rooms,
             #"des_code": property_obj.des_code,
             "description": property_obj.description.description if property_obj.description else None,
