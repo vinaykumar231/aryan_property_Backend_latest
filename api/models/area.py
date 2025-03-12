@@ -12,7 +12,7 @@ class Area(Base):
     filter_area_id = Column(Integer, ForeignKey("filter_area.filter_area_id"))
     built_up_area = Column(Float)
     carpet_up_area = Column(Float)
-    efficiency = Column(Float)
+    efficiency = Column(String(255), nullable=True) 
     car_parking = Column(String(100))
     rental_psf = Column(String(100))
     outright_rate_psf = Column(String(100))

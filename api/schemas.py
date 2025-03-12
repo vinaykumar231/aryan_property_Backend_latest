@@ -307,7 +307,7 @@ class AreaSchema(BaseModel):
     filter_area_id: int
     built_up_area: float
     carpet_up_area: float
-    efficiency: Optional[float] = None
+    efficiency: Optional[str] = None
     car_parking: Optional[str] = None
     rental_psf: Optional[str] = None
     outright_rate_psf: Optional[str] = None

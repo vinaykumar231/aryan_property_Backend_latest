@@ -28,7 +28,7 @@ def generate_property_code(db: Session):
 def create_property(
     property: PropertyCreate,
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user :AriyanspropertiesUser = Depends(get_current_user)
 ):
     try:
         property_code = generate_property_code(db=db)
