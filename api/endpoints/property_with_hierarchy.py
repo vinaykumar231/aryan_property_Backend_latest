@@ -283,6 +283,7 @@ async def get_all_properties(
                 "poss_status": property_obj.poss_status,
                 "east_west": property_obj.east_west,
                 "reopen_data": property_obj.Reopen_date,
+                "created_date":property_obj.created_date,
                 "areas": area_list,
                 "contacts": contact_list,
                 "furnished_details": furnished_property_data
@@ -407,6 +408,7 @@ async def get_all_properties_by_area(
                 "poss_status": property_obj.poss_status,
                 "east_west": property_obj.east_west,
                 "reopen_data": property_obj.Reopen_date,
+                "created_date":property_obj.created_date,
                 "areas": area_list,
                 "contacts": contact_list,
                 "furnished_details": furnished_property_data
