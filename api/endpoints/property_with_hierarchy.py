@@ -194,7 +194,8 @@ async def get_all_properties(
             #joinedload(Property.reopen),
             joinedload(Property.area).joinedload(Area.filter_area),  
             joinedload(Property.area).joinedload(Area.floor_wing_unit_number),
-            joinedload(Property.furnished_properties)  
+            joinedload(Property.furnished_properties),
+            joinedload(Property.user)  
         ).all()
 
         if not properties:
@@ -270,6 +271,7 @@ async def get_all_properties(
             
             property_list.append({
                 "property_code": property_obj.property_code,
+                "user_name":property_obj.user.user_name,
                 "building_name": property_obj.building_name,
                 "full_address": property_obj.full_address,
                 "sublocation": property_obj.sublocation,
@@ -326,7 +328,8 @@ async def get_all_properties_by_area(
             joinedload(Property.contacts),
             joinedload(Property.area).joinedload(Area.filter_area),
             joinedload(Property.area).joinedload(Area.floor_wing_unit_number),
-            joinedload(Property.furnished_properties)
+            joinedload(Property.furnished_properties),
+            joinedload(Property.user)
         ).all()
 
         if not properties:
@@ -393,6 +396,7 @@ async def get_all_properties_by_area(
 
             property_list.append({
                 "property_code": property_obj.property_code,
+                "user_name":property_obj.user.user_name,
                 "building_name": property_obj.building_name,
                 "full_address": property_obj.full_address,
                 "sublocation": property_obj.sublocation,
