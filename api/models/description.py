@@ -6,7 +6,8 @@ from datetime import datetime
 
 class Description(Base):
     __tablename__ = "descriptions"
-    des_id = Column(String(50), primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    des_id = Column(String(50), unique=True, index=True, nullable=False)
     description = Column(Text)
     edit_date = Column(DateTime, default=datetime.utcnow)
 

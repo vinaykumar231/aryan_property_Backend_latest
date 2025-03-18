@@ -560,10 +560,10 @@ async def delete_property(
         for contact in property_obj.contacts:
             db.delete(contact)
 
-        if property_obj.property_types:
-            db.delete(property_obj.property_types)
-        if property_obj.descriptions:
-            db.delete(property_obj.descriptions)
+        # if property_obj.property_types:
+        #     db.delete(property_obj.property_types)
+        # if property_obj.descriptions:
+        #     db.delete(property_obj.descriptions)
 
         db.delete(property_obj)
 
