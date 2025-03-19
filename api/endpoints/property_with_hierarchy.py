@@ -321,7 +321,9 @@ async def get_all_properties_by_area(
         query = db.query(Property).join(Area)
 
         if area_db and area_db2:
-            query = query.filter(Area.filter_area_id.between(area_db.filter_area_id, area_db2.filter_area_id))
+            min_id = min(area_db.filter_area_id, area_db2.filter_area_id)
+            max_id = max(area_db.filter_area_id, area_db2.filter_area_id)
+            query = query.filter(Area.filter_area_id.between(min_id, max_id))
 
         properties = query.options(
             joinedload(Property.descriptions),
