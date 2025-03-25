@@ -114,6 +114,8 @@ async def add_property_with_hierarchy(
                 car_parking=area_data.car_parking,
                 rental_psf=area_data.rental_psf,
                 outright_rate_psf=area_data.outright_rate_psf,
+                terrace_area=area_data.terrace_area,
+                remarks=area_data.remarks,
                 #floor_wing_unit_id=wing_floor_unit_db.floor_wing_unit_id,
                 created_date=ist_now
             )
@@ -213,6 +215,8 @@ async def get_all_properties(
                     "car_parking": area.car_parking,
                     "rental_psf": area.rental_psf,
                     "outright_rate_psf": area.outright_rate_psf,
+                     "terrace_area":area.terrace_area,
+                    "remarks":area.remarks,
                     "floor_wing_unit_number": [
                         {
                             "floor": wing.floor,
@@ -349,6 +353,8 @@ async def get_all_properties_by_area(
                     "car_parking": area.car_parking,
                     "rental_psf": area.rental_psf,
                     "outright_rate_psf": area.outright_rate_psf,
+                    "terrace_area":area.terrace_area,
+                    "remarks":area.remarks,
                     "floor_wing_unit_number": [
                         {
                             "floor": wing.floor,
@@ -480,6 +486,9 @@ async def update_property_with_hierarchy(
                 area.car_parking = area_data.car_parking
                 area.rental_psf = area_data.rental_psf
                 area.outright_rate_psf = area_data.outright_rate_psf
+                area.terrace_area=area_data.terrace_area
+                area.remarks=area_data.remarks
+            
             else:
                 area = Area(
                     property_code=property_code,
@@ -489,7 +498,9 @@ async def update_property_with_hierarchy(
                     efficiency=area_data.efficiency,
                     car_parking=area_data.car_parking,
                     rental_psf=area_data.rental_psf,
-                    outright_rate_psf=area_data.outright_rate_psf
+                    outright_rate_psf=area_data.outright_rate_psf,
+                    terrace_area=area_data.terrace_area,
+                    remarks=area_data.remarks
                 )
                 db.add(area)
             db.flush()

@@ -311,6 +311,8 @@ class AreaSchema(BaseModel):
     car_parking: Optional[str] = None
     rental_psf: Optional[str] = None
     outright_rate_psf: Optional[str] = None
+    terrace_area: Optional[str] = None
+    remarks: Optional[str] = None
     unit_floor_wing: List[UnitFloorWingSchema]
     contacts: List[PropertyContactSchema]
 
