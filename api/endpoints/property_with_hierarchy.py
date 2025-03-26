@@ -247,6 +247,7 @@ async def get_all_properties(
             furnished_property_data = None
             if property_obj.furnished_properties:
                 furnished_property_data = {
+                    "id":property_obj.furnished_properties.id,
                     "workstations": property_obj.furnished_properties.workstations,
                     "workstation_type_cubicle": property_obj.furnished_properties.workstation_type_cubicle,
                     "workstation_type_linear": property_obj.furnished_properties.workstation_type_linear,
@@ -384,6 +385,7 @@ async def get_all_properties_by_area(
             furnished_property_data = None
             if property_obj.furnished_properties:
                 furnished_property_data = {
+                    "id":property_obj.furnished_properties.id,
                     "workstations": property_obj.furnished_properties.workstations,
                     "workstation_type_cubicle": property_obj.furnished_properties.workstation_type_cubicle,
                     "workstation_type_linear": property_obj.furnished_properties.workstation_type_linear,
