@@ -522,14 +522,14 @@ async def update_property_with_hierarchy(
             for contact_data in area_data.contacts:
                 contact = PropertyContacts(
                     property_code=property_code,
-                    company_builder_name=contact_data.company_builder_name,
-                    address=contact_data.address,
-                    conatact_person_1=contact_data.conatact_person_1,
-                    conatact_person_2=contact_data.conatact_person_2,
-                    conatact_person_number_1=contact_data.conatact_person_number_1,
-                    conatact_person_number_2=contact_data.conatact_person_number_2,
-                    email=contact_data.email,
-                    reffered_by=contact_data.reffered_by
+                    company_builder_name=contact_data.company_builder_name if contact_data.company_builder_name else None,
+                    address=contact_data.address if contact_data.address else None,
+                    conatact_person_1=contact_data.conatact_person_1 if contact_data.conatact_person_1 else None,
+                    conatact_person_2=contact_data.conatact_person_2 if contact_data.conatact_person_2 else None,
+                    conatact_person_number_1=contact_data.conatact_person_number_1 if isinstance(contact_data.conatact_person_number_1, int) else None,
+                    conatact_person_number_2=contact_data.conatact_person_number_2 if isinstance(contact_data.conatact_person_number_2, int) else None,
+                    email=contact_data.email if contact_data.email else None,
+                    reffered_by=contact_data.reffered_by if contact_data.reffered_by else None
                 )
                 db.add(contact)
             db.flush()

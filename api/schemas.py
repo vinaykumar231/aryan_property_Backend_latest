@@ -1,5 +1,5 @@
 from pydantic import BaseModel,  Field, EmailStr, validator
-from typing import Optional, List
+from typing import Optional, List, Union
 from fastapi import UploadFile, File
 from datetime import date, datetime
 from enum import Enum
@@ -293,10 +293,19 @@ class PropertyContactSchema(BaseModel):
     address: str
     conatact_person_1: Optional[str] = None  
     conatact_person_2: Optional[str] = None  
-    conatact_person_number_1: Optional[int] = None  
-    conatact_person_number_2: Optional[int] = None  
+    conatact_person_number_1: Optional[Union[int, str]] = None  
+    conatact_person_number_2: Optional[Union[int, str]] = None  
     email: str
     reffered_by: Optional[str] = None  
+
+    @validator("conatact_person_number_1", "conatact_person_number_2", pre=True)
+    def validate_contact_numbers(cls, value):
+        """Convert non-numeric values (like '-') to None and numeric strings to int."""
+        if isinstance(value, str) and (value.strip() == "-" or value.strip() == ""):
+            return None  # Convert '-' or empty string to None
+        if isinstance(value, str) and value.isdigit():
+            return int(value)  # Convert numeric string to int
+        return value  # Keep as is
 
 class UnitFloorWingSchema(BaseModel):
     wing: Optional[str] = None
